@@ -8,7 +8,6 @@ output:
         keep_md: true        
         toc: true
         toc_float: true
-        self_contained: false
 ---
 
 

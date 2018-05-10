@@ -1,5 +1,5 @@
 
-[Aller au contenu de l'atelier](atelier_rgeo.html)
+[Aller au contenu de l'atelier](atelier_rgeo.md)
 
 [Go to workshop content](rgeo_workshop.md)
 
