@@ -4,8 +4,11 @@ author: "Philippe Marchand, Université du Québec en Abitibi-Témiscamingue"
 date: 11 mai 2018
 output: 
     html_document:
-        keep_md: true
         theme: united
+        keep_md: true        
+        toc: true
+        toc_float: true
+        self_contained: false
 ---
 
 ```{r setup, include=FALSE}
@@ -127,7 +130,7 @@ plot(mrc[, "geometry"], reset = FALSE, axes = TRUE)
 plot(uqat, add = TRUE, pch = 20, col = "red")
 ```
 
-### Rappel
+**Rappel**
 
 * Les données spatiales vectorielles associent des champs de donnés à des objets géométriques tels que des points, lignes et polygones. Le package ***sf*** permet de travailler avec ces données dans R.
 * Pour lire un jeu de données vectoriel: `st_read`.
@@ -175,7 +178,7 @@ plot(mrc_proj[, "geometry"], axes = TRUE, reset = FALSE,
 plot(uqat_proj, add = TRUE, pch = 20, col = "red")
 ```
 
-### Rappel
+**Rappel**
 
 * Un système de coordonnées géographique est basé sur un modèle géodésique (*datum*) et donne la position en coordonnées sphériques (longitude, latitude) mesurées en degrés.
 * Un système de coordonnées projeté convertit les coordonnées sphériques en coordonnées planes (*x*, *y*) mesurées en mètres.
@@ -222,7 +225,7 @@ poly_diff <- st_difference(mrc_proj, rayon)
 plot(poly_diff[, "geometry"])
 ```
 
-### Rappel
+**Rappel**
 
 * Toutes les opérations géométriques du package ***sf*** sont basées sur la géométrie plane. Elles traitent la longitude et latitude comme des axes perpendiculaires (*x*, *y*).
 * `st_buffer` crée une zone tampon à une distance donnée autour d'un objet géométrique.
@@ -331,7 +334,7 @@ tm_shape(livree_mrc) +
     tm_facets("MRS_NM_REG")
 ```
 
-### Rappel
+**Rappel**
 
 * Le package ***tmap*** permet de produire des cartes combinant différents champs de données d'un ou plusieurs jeux de données vectoriels.
 * La première instruction d'une carte doit être `tm_shape`, indiquant les jeu de données à utiliser.
@@ -442,7 +445,7 @@ cdem_agg <- aggregate(cdem, fact = 50, fun = mean)
 plot(cdem_agg)
 ```
 
-### Rappel
+**Rappel**
 
 * Un jeu de données matriciel associe une valeur à chaque pixel dans une grille régulière. Le package ***raster*** permet de traiter ce type de données dans R.
 * Pour lire un jeu de données matriciel: `raster`.
@@ -487,7 +490,7 @@ Finalement, comparons la distribution de l'altitude des régions touchées par d
 boxplot(cdem ~ Ia, data = livree_rn)
 ```
 
-### Rappel
+**Rappel**
 
 * `extract` permet d'extraire des valeurs d'un objet *raster* à partir de coordonnées spatiales.
 * Pour un ensemble de points, `extract` retourne la valeur du *raster* à ces points.
