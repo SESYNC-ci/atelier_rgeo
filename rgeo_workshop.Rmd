@@ -6,6 +6,8 @@ output:
     html_document:
         keep_md: true
         theme: united
+        toc: true
+        toc_float: true
 ---
 
 ```{r setup, include=FALSE}
