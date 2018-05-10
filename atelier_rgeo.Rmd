@@ -498,11 +498,13 @@ boxplot(cdem ~ Ia, data = livree_rn)
 
 Le package ***mapview*** permet de visualiser des objets `sf` ou `raster` sur une carte interactive (de style Google Maps), avec différentes options de couche de base (ex. OpenStreetMap, OpenTopoMap, World Imagery d'ESRI). Il suffit d'appeler la fonction `mapview` avec le nom de l'objet spatial à afficher. D'autres données spatiales peuvent y être superposées avec `+`.
 
-```{r}
+```{r, eval = FALSE}
 library(mapview)
 
 mapview(cdem) + livree_rn[, "Niveau"]
 ```
+
+![Exemple mapview](images/mapview.png)
 
 ---
 

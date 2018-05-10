@@ -500,11 +500,13 @@ boxplot(cdem ~ Ia, data = livree_rn)
 
 The ***mapview*** package provides visualizations of `sf` and `raster` layers on an interactive map (similar to Google Maps) with different basemap options (e.g. OpenStreetMap, OpenTopoMap, ESRI World Imagery). It is as simple as calling the `mapview` function with the name of the spatial dataset. Additional data can be overlaid with the `+` operator.
 
-```{r}
+```{r, eval = FALSE}
 library(mapview)
 
 mapview(cdem) + livree_rn[, "Niveau"]
 ```
+
+![Exemple mapview](images/mapview.png)
 
 ---
 
