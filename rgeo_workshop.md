@@ -8,9 +8,7 @@ output:
         theme: united
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, collapse = TRUE)
-```
+
 
 ---
 
@@ -51,24 +49,75 @@ The *mrc* folder contains coordinates for the Québec regional county municipali
 To load a dataset in R, we will call the `st_read` function (all ***sf*** package functions start with the prefix `st_`, standing for spatio-temporal) with the *.shp* file name.
 
 
-```{r read_mrc}
+
+```r
 library(sf)
+## Linking to GEOS 3.6.1, GDAL 2.2.3, proj.4 4.9.3
 
 mrc <- st_read("mrc/mrc_polygone.shp", stringsAsFactors = FALSE)
+## Reading layer `mrc_polygone' from data source `C:\Users\marchanp\Desktop\atelier_rgeo\mrc\mrc_polygone.shp' using driver `ESRI Shapefile'
+## Simple feature collection with 137 features and 12 fields
+## geometry type:  POLYGON
+## dimension:      XY
+## bbox:           xmin: -79.7625 ymin: 44.99136 xmax: -56.93495 ymax: 62.58217
+## epsg (SRID):    4269
+## proj4string:    +proj=longlat +datum=NAD83 +no_defs
 ```
 
 The output text indicates the main properties of the loaded dataset, including the geometric type (POLYGON), the spatial extent of the data (*bbox*) and the coordinate reference systme (CRS) in use. That CRS is described in two formats: a EPSG code and a *proj4string* character string. We will discuss coordinate systems in the next section.
 
 These properties can be accessed separately using the `st_bbox` and `st_crs` functions:
-```{r prop_mrc}
+
+```r
 st_bbox(mrc)
+##      xmin      ymin      xmax      ymax 
+## -79.76250  44.99136 -56.93495  62.58217
 st_crs(mrc)
+## Coordinate Reference System:
+##   EPSG: 4269 
+##   proj4string: "+proj=longlat +datum=NAD83 +no_defs"
 ```
 
 Let's look at the first few rows of the data:
-```{r class_head}
+
+```r
 class(mrc)
+## [1] "sf"         "data.frame"
 head(mrc)
+## Simple feature collection with 6 features and 12 fields
+## geometry type:  POLYGON
+## dimension:      XY
+## bbox:           xmin: -79.7625 ymin: 48.92349 xmax: -63.31941 ymax: 62.58217
+## epsg (SRID):    4269
+## proj4string:    +proj=longlat +datum=NAD83 +no_defs
+##           AREA  PERIMETER MRC_S_ MRC_S_ID     MRS_NO_IND
+## 1 7.828380e+01 77.0855365      2        1 50 02 0040 000
+## 2 4.743960e-02  1.6709096      3        2 50 02 0040 000
+## 3 4.502033e+01 55.2806743      4        3 50 02 0040 000
+## 4 7.530857e-04  0.1519356      5        4 50 02 0010 000
+## 5 1.024437e+01 23.4016618      6        5 50 02 0010 000
+## 6 5.028808e-01  8.8274338      7        6 50 02 0010 000
+##                                     MRS_DE_IND MRS_CO_MRC
+## 1 Municipalité régionale de comté géographique        992
+## 2 Municipalité régionale de comté géographique        993
+## 3 Municipalité régionale de comté géographique        991
+## 4   MRC (incluant les territoires autochtones)        972
+## 5   MRC (incluant les territoires autochtones)        972
+## 6   MRC (incluant les territoires autochtones)        972
+##                         MRS_NM_MRC MRS_CO_REG     MRS_NM_REG MRS_CO_REF
+## 1 Administration régionale Kativik         10 Nord-du-Québec     BDGA1M
+## 2         Nouveau toponyme à venir         10 Nord-du-Québec     BDGA1M
+## 3                          Jamésie         10 Nord-du-Québec     BDGA1M
+## 4                      Caniapiscau         09      Côte-Nord     BDGA1M
+## 5                      Caniapiscau         09      Côte-Nord     BDGA1M
+## 6                      Caniapiscau         09      Côte-Nord     BDGA1M
+##   MRS_CO_VER                       geometry
+## 1   V2017-08 POLYGON ((-77.82293 55.2603...
+## 2   V2017-08 POLYGON ((-77.82293 55.2603...
+## 3   V2017-08 POLYGON ((-78.49988 55.0008...
+## 4   V2017-08 POLYGON ((-66.6878 55.00005...
+## 5   V2017-08 POLYGON ((-70.02987 55.0000...
+## 6   V2017-08 POLYGON ((-66.25978 55.0000...
 ```
 
 A `sf` object is in fact a specialized `data.frame`, where each line contains data associated with a geometric object. The latter is described in the `geometry` column. THe most common geographical types are:
@@ -80,15 +129,23 @@ A `sf` object is in fact a specialized `data.frame`, where each line contains da
 
 The `plot` function applied to a `sf` object creates a map for each field in the dataset.
 
-```{r plot_sf}
+
+```r
 plot(mrc)
+## Warning: plotting the first 10 out of 12 attributes; use max.plot = 12 to
+## plot all
 ```
+
+![](rgeo_workshop_files/figure-html/plot_sf-1.png)<!-- -->
 
 To plot a single variable, you need to select the corresponding column. To show a map without data variables, you can select the `geometry` column. The `axes = TRUE` parameter indicates to the program that coordinate axes much be shown.
 
-```{r plot_geom}
+
+```r
 plot(mrc[, "geometry"], axes = TRUE)
 ```
+
+![](rgeo_workshop_files/figure-html/plot_geom-1.png)<!-- -->
 
 ### Exercise 1 {#retour1}
 
@@ -102,31 +159,54 @@ The `st_as_sf` function can convert a `data.frame` containing geographical coord
 
 Here, let's create a dataset containing a single point at the position of UQAT, with the same coordinate system as `mrc` (longitude and latitude).
 
-```{r create_pt}
+
+```r
 uqat <- data.frame(nom = "UQAT", long = -79.0086, lat = 48.2306)
 uqat <- st_as_sf(uqat, coords = c("long", "lat"), crs = st_crs(mrc))
 ```
 
 The ***sf*** package includes various functions to compare geometric data. To determine which polygon in `mrc` contains the `uqat` point, we use the `st_within` function.
 
-```{r within}
+
+```r
 st_within(uqat, mrc)
+## although coordinates are longitude/latitude, st_within assumes that they are planar
+## Sparse geometry binary predicate list of length 1, where the predicate was `within'
+##  1: 56
 ```
 
 The warning reminds us that geometric operations in that package are based on a *xy* plane rather than spherical coordinates (more details on this below).
 
 The result of a spatial comparison between geolocated data is a list which, for each object in the first dataset, contains the indices of objects in the second dataset to which the comparison applies. Here, the first (and only) point in `uqat` is *within* polygon 56 of `mrc`. We can check which MRC it is:
 
-```{r mrc56}
+
+```r
 mrc[56, ]
+## Simple feature collection with 1 feature and 12 fields
+## geometry type:  POLYGON
+## dimension:      XY
+## bbox:           xmin: -79.51763 ymin: 47.70263 xmax: -78.22 ymax: 48.57511
+## epsg (SRID):    4269
+## proj4string:    +proj=longlat +datum=NAD83 +no_defs
+##         AREA PERIMETER MRC_S_ MRC_S_ID     MRS_NO_IND
+## 56 0.7832265  4.624354     57       58 50 02 0040 000
+##                                      MRS_DE_IND MRS_CO_MRC    MRS_NM_MRC
+## 56 Municipalité régionale de comté géographique         86 Rouyn-Noranda
+##    MRS_CO_REG            MRS_NM_REG MRS_CO_REF MRS_CO_VER
+## 56         08 Abitibi-Témiscamingue     BDGA1M   V2017-08
+##                          geometry
+## 56 POLYGON ((-79.51749 48.4306...
 ```
 
 To show multiple datasets on the same map, we first call `plot` with the argument `reset = FALSE`, then we add another dataset with the argument `add = TRUE`.
 
-```{r plot_overlap}
+
+```r
 plot(mrc[, "geometry"], reset = FALSE, axes = TRUE)
 plot(uqat, add = TRUE, pch = 20, col = "red")
 ```
+
+![](rgeo_workshop_files/figure-html/plot_overlap-1.png)<!-- -->
 
 ### Review
 
@@ -153,28 +233,43 @@ For example, the images below show how identical circular areas appear at differ
 
 We will convert the `mrc` polygons and the `uqat` point into a Lambert conical conformal projection centered on Quebec ([EPSG:6622](https://epsg.io/6622)), using `st_transform`.
 
-```{r transform}
+
+```r
 mrc_proj <- st_transform(mrc, 6622)
 uqat_proj <- st_transform(uqat, 6622)
 
 uqat_proj
+## Simple feature collection with 1 feature and 1 field
+## geometry type:  POINT
+## dimension:      XY
+## bbox:           xmin: -774896.9 ymin: 527230.8 xmax: -774896.9 ymax: 527230.8
+## epsg (SRID):    6622
+## proj4string:    +proj=lcc +lat_1=60 +lat_2=46 +lat_0=44 +lon_0=-68.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
+##    nom                   geometry
+## 1 UQAT POINT (-774896.9 527230.8)
 ```
 
 It is important to always use `st_transform` to convert datasets between different coordinate systems. A common error consists in modifying the coordinate system of a dataset (for example, with `st_crs`) without transforming the data themselves.
 
 Note that the projected coordinates are expressed in meters ("+units=m" in the *proj4string*). These coordinates are relative to a point of origin defined by the projection.
 
-```{r plot_geom_proj}
+
+```r
 plot(mrc_proj[, "geometry"], axes = TRUE)
 ```
 
+![](rgeo_workshop_files/figure-html/plot_geom_proj-1.png)<!-- -->
+
 To create a map with latitude and longitude lines superposed on projected data, we can specify a geographical coordinate system (here, based on the original data) to the `graticule` argument:
 
-```{r plot_graticule}
+
+```r
 plot(mrc_proj[, "geometry"], axes = TRUE, reset = FALSE, 
      graticule = st_crs(mrc))
 plot(uqat_proj, add = TRUE, pch = 20, col = "red")
 ```
+
+![](rgeo_workshop_files/figure-html/plot_graticule-1.png)<!-- -->
 
 ### Review
 
@@ -188,7 +283,8 @@ plot(uqat_proj, add = TRUE, pch = 20, col = "red")
 
 Now that our data have been projected, let's use the `st_buffer` function to define a 100km radius around the `uqat` point, which we will add to the map:
 
-```{r buffer}
+
+```r
 rayon <- st_buffer(uqat_proj, dist = 100000)
 
 plot(mrc_proj[, "geometry"], axes = TRUE, reset = FALSE, 
@@ -196,6 +292,8 @@ plot(mrc_proj[, "geometry"], axes = TRUE, reset = FALSE,
 plot(uqat_proj, add = TRUE, pch = 20, col = "red")
 plot(rayon[, "geometry"], add = TRUE, border = "blue")
 ```
+
+![](rgeo_workshop_files/figure-html/buffer-1.png)<!-- -->
 
 **Question**: How many sides are there in the `rayon` polygon? (Look at the `geometry` column.) This is the default value, but there is an optional parameter in `st_buffer` that modifies the resolution of the buffer's circular segments.
 
@@ -213,15 +311,23 @@ For example, the *AREA* column in `mrc` refers to the area of the full MRC -- al
 
 Among the other geometric operations supported by `sf`, we will mention `st_union`, which combines multiple geometric objects in one geometry, as well as `st_difference`, which removes from one dataset the areas covered by a second dataset.
 
-```{r union}
+
+```r
 poly_union <- st_union(mrc_proj)
 plot(poly_union)
 ```
 
-```{r difference}
+![](rgeo_workshop_files/figure-html/union-1.png)<!-- -->
+
+
+```r
 poly_diff <- st_difference(mrc_proj, rayon)
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 plot(poly_diff[, "geometry"])
 ```
+
+![](rgeo_workshop_files/figure-html/difference-1.png)<!-- -->
 
 ### Review
 
@@ -240,15 +346,24 @@ plot(poly_diff[, "geometry"])
 
 The *livree* folder contains data on the defoliation due to the forest tent caterpillar (*Malacosoma disstria*) in Québec between 2014 and 2017 ([data source from Données Québec](https://www.donneesquebec.ca/recherche/fr/dataset/donnees-sur-les-perturbations-naturelles-insecte-livree-des-forets)).
 
-```{r read_livree}
+
+```r
 livree <- st_read("livree/Livree_2014_2017.shp")
+## Reading layer `Livree_2014_2017' from data source `C:\Users\marchanp\Desktop\atelier_rgeo\livree\Livree_2014_2017.shp' using driver `ESRI Shapefile'
+## Simple feature collection with 2944 features and 4 fields
+## geometry type:  MULTIPOLYGON
+## dimension:      XY
+## bbox:           xmin: -79.57113 ymin: 45.00835 xmax: -71.60867 ymax: 48.74596
+## epsg (SRID):    4269
+## proj4string:    +proj=longlat +datum=NAD83 +no_defs
 ```
 
 For each defoliation polygon, the data indicates the year, the area in hectares (*SupHaCea*), along with the intensity of defoliation represented as a text variable  (*Niveau*) and a numerical index (*Ia*): *Léger* (light, 1), *Modéré* (moderate, 2) or *Grave* (severe, 3).
 
 We will first extract the 2017 data only. Since a `sf` object is a type of `data.frame`, we can use the normal R methods to filter the data based on one variable.
 
-```{r livree2017}
+
+```r
 livree2017 <- livree[livree$ANNEE == 2017, ]
 ```
 
@@ -264,15 +379,7 @@ Suggested steps:
 
 [Solution](#sol3)
 
-```{r, echo = FALSE, include = FALSE}
-rn <- mrc[mrc$MRS_NM_MRC == "Rouyn-Noranda", ]
 
-# Vérifions que les systèmes de coordonnées soient identifiques
-st_crs(rn) == st_crs(livree2017)
-
-# Intersection des polygones de défoliation et de la MRC
-livree_rn <- st_intersection(livree2017, rn)
-```
 
 
 **Question:** What are the potential problems with this method (see the warnings issued by R)?
@@ -281,15 +388,26 @@ livree_rn <- st_intersection(livree2017, rn)
 * If polygons overlapped the boundary, the area indicated by *SupHaCea* would include the part of the polygon outside the MRC.
 
 Here, no polygon approaches the boundary, thus our method is valid. However, if we intersected the defoliation data with all the MRC boundaries, many polygons would be counted twice:
-```{r livree_mrc_sum}
+
+```r
 livree_mrc <- st_intersection(livree2017, mrc)
+## although coordinates are longitude/latitude, st_intersection assumes that they are planar
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 sum(livree2017$SupHaCea) # Sum of defoliated areas in original data
+## [1] 305654.6
 sum(livree_mrc$SupHaCea) # Sum after intersection
+## [1] 383485.2
 ```
 
 Returning to the Rouyn-Noranda data, we could use the `aggregate` function to calculate the defoliated area by intensity level:
-```{r livree_rn_agg}
+
+```r
 aggregate(SupHaCea ~ Niveau, data = livree_rn, sum)
+##   Niveau SupHaCea
+## 1  Grave 18377.87
+## 2  Léger 16187.58
+## 3 Modéré 18228.49
 ```
 
 
@@ -307,24 +425,31 @@ See [this page](http://strimas.com/r/tidy-sf/) for more examples integrating ***
 
 Until now, we visualized spatial data with the `plot` function. To make more detailed maps, such as for a publication, the ***tmap*** package can be very useful. To create a map using *tmap*, we first define the geometry to display with `tm_shape`, then we add layers representing different variables. For example, the `tm_fill` function colors polygons according to their values for a specific variable.
 
-```{r tmap}
+
+```r
 library(tmap)
 
 tm_shape(livree_mrc) +
     tm_fill("Niveau") 
 ```
 
+![](rgeo_workshop_files/figure-html/tmap-1.png)<!-- -->
+
 The use of the `+` symbol to add elements to the map is inspired by the *ggplot2* graphical package. Like *ggplot2*, *tmap* can also divide the graph into facets based on a variable in the dataset. Here, we use the administrative region indicated in the *MRS_NM_REG* column.
 
-```{r tmap_facets}
+
+```r
 tm_shape(livree_mrc) +
     tm_fill("Niveau") +
     tm_facets("MRS_NM_REG")
 ```
 
+![](rgeo_workshop_files/figure-html/tmap_facets-1.png)<!-- -->
+
 Finally, here is how we can add the MRC boundaries (with `tm_polygons`) and names (with `tm_text`) to the map. Note that the elements are drawn in the order specified in the script. 
 
-```{r tmap_overlap}
+
+```r
 tm_shape(mrc) +
     tm_polygons() +
     tm_text("MRS_NM_MRC") +
@@ -332,6 +457,8 @@ tm_shape(livree_mrc) +
     tm_fill("Niveau") +
     tm_facets("MRS_NM_REG")
 ```
+
+![](rgeo_workshop_files/figure-html/tmap_overlap-1.png)<!-- -->
 
 ### Review
 
@@ -350,17 +477,30 @@ The CDEM is a raster dataset; the area of Canada is covered by a regular grid an
 
 The base resolution of the CDEM is 1/4800th of a degree and data are available in sections of 2 degrees of longitude by 1 degree of latitude. We will first read the CDEM index, a file indicating the rectangular areas matching each CDEM section. That index is also in the *cdem* folder. It is in *.kml* format, which is a vector data format used notably by Google Earth.
 
-```{r read_cdem_idx}
+
+```r
 cdem_index <- st_read("cdem/cdem_index_250k.kml", stringsAsFactors = FALSE)
+## Reading layer `cdem_shp_index' from data source `C:\Users\marchanp\Desktop\atelier_rgeo\cdem\cdem_index_250k.kml' using driver `KML'
+## Simple feature collection with 969 features and 2 fields
+## geometry type:  GEOMETRYCOLLECTION
+## dimension:      XYZ
+## bbox:           xmin: -142 ymin: 41 xmax: -52 ymax: 83
+## epsg (SRID):    4326
+## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ```
 
 **Question:** Which spatial function would you use to determine which sections of the CDEM cover the MRC of Rouyn-Noranda?
 
-```{r get_rn_cdem}
+
+```r
 rn <- mrc[mrc$MRS_NM_MRC == "Rouyn-Noranda", ]
 cdem_index <- st_transform(cdem_index, st_crs(rn))
 cdem_rn <- st_intersection(cdem_index, rn)
+## although coordinates are longitude/latitude, st_intersection assumes that they are planar
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 cdem_rn$Name
+## [1] "031M" "032D"
 ```
 
 The MRC overlaps sections 31M and 32D. Those two sections can be found in the *cdem* folder in GeoTiff (*.tif*) format. To read and process raster data in R, we will use the ***raster*** package.
@@ -371,37 +511,63 @@ The MRC overlaps sections 31M and 32D. Those two sections can be found in the *c
 
 We first load one of the two CDEM sections, with the `raster` function. This function associates the dataset to a `raster` object, and its metadata can be shown by typing its name on the command line.
 
-```{r read_raster}
+
+```r
 library(raster)
+## Loading required package: sp
 cdem32D <- raster("cdem/cdem_dem_032D.tif")
 cdem32D
+## class       : RasterLayer 
+## dimensions  : 4801, 9601, 46094401  (nrow, ncol, ncell)
+## resolution  : 0.0002083333, 0.0002083333  (x, y)
+## extent      : -80.0001, -77.9999, 47.9999, 49.0001  (xmin, xmax, ymin, ymax)
+## coord. ref. : +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs 
+## data source : C:\Users\marchanp\Desktop\atelier_rgeo\cdem\cdem_dem_032D.tif 
+## names       : cdem_dem_032D 
+## values      : -32768, 32767  (min, max)
 ```
 
 These properties include raster dimensions (number of rows and columns), its resolution (in the same units as the coordinate system, here in degrees), its extent (similar to `bbox` for vector data) and its coordinate reference system (in *proj4string* format). We can extract these properties separately with the functions `dim`, `res`, `extent` and `crs`, respectively.
 
-```{r dim_extent}
+
+```r
 dim(cdem32D)
+## [1] 4801 9601    1
 extent(cdem32D)
+## class       : Extent 
+## xmin        : -80.0001 
+## xmax        : -77.9999 
+## ymin        : 47.9999 
+## ymax        : 49.0001
 ```
 
 *Note:* While the *proj4string* from the CDEM differs from that of the MRC data, NAD83 and GRS80 are based on the same ellipsoid model, so the coordinates are equivalent.
 
 Since raster datasets are generally large (e.g. 88 Mb for each CDEM section), `raster` doesn't load all the data in memory, but instead creates a link to the file on disk. Visualization functions likewise only show a stratified sample of the dataset. For example, the histogram of `cdem32D` values is constructed from 100 000 pixels out of ~46 millions.
 
-```{r hist_raster}
+
+```r
 hist(cdem32D)
+## Warning in .hist1(x, maxpixels = maxpixels, main = main, plot = plot, ...):
+## 0% of the raster cells were used. 100000 values used.
 ```
+
+![](rgeo_workshop_files/figure-html/hist_raster-1.png)<!-- -->
 
 This is also the case `plot`, which shows an image of the raster. As previously, we can overlap a vector dataset with the `add = TRUE` parameter (`reset = FALSE` is not needed here).
 
-```{r plot_raster}
+
+```r
 plot(cdem32D)
 plot(mrc[, "geometry"], add = TRUE)
 ```
 
+![](rgeo_workshop_files/figure-html/plot_raster-1.png)<!-- -->
+
 We will now load the second CDEM section, then combine both datasets in a single raster with the `merge` function.
 
-```{r merge_raster}
+
+```r
 cdem31M <- raster("cdem/cdem_dem_031M.tif")
 cdem <- merge(cdem32D, cdem31M)
 ```
@@ -412,13 +578,16 @@ Depending on your system, it is possible that the new `cdem` object will be held
 
 To crop a raster's extent along the boundaries of another spatial object (`raster` or `sf`), we use the `crop` function. Here, we extract a rectangular area around the boundaries of the Rouyn-Noranda MRC.
 
-```{r crop_raster}
+
+```r
 rn <- mrc[mrc$MRS_NM_MRC == "Rouyn-Noranda", ]
 cdem <- crop(cdem, rn)
 
 plot(cdem)
 plot(rn[, "geometry"], add = TRUE)
 ```
+
+![](rgeo_workshop_files/figure-html/crop_raster-1.png)<!-- -->
 
 Since `raster` objects are fundamentally matrices, we can apply the same mathematical operators as regular matrices in R. For example, if *X* is a matrix in R, `X + 5` returns a new matrix where each element in *X* is incremented by 5, and `X-Y` returns a matrix where each element in *Y* is subtracted from the corresponding element in *X*.
 
@@ -431,18 +600,24 @@ From `cdem`, produce (a) a map where elevation is represented in km rather than 
 ---
 
 To exclude regions with elevations of 300 meters or more, but keep elevation information for other areas, we can use the `mask` function.
-```{r mask_raster}
+
+```r
 plot(mask(cdem, cdem < 300, maskvalue = FALSE))
 ```
+
+![](rgeo_workshop_files/figure-html/mask_raster-1.png)<!-- -->
 
 The `maskvalue` indicates that pixels where the masking condition (`cdem < 300`) is `FALSE` must be excluded.
 
 Due to time or memory limitations, it is sometimes necessary to reduce the resolution of raster data. The `aggregate` function reduces the number of pixels by a given factor in each direction, by combining values according to a summary function. For example, this command combine 50x50 pixel regions of the original layer by taking the mean value.
 
-```{r agg_raster}
+
+```r
 cdem_agg <- aggregate(cdem, fact = 50, fun = mean)
 plot(cdem_agg)
 ```
+
+![](rgeo_workshop_files/figure-html/agg_raster-1.png)<!-- -->
 
 ### Review
 
@@ -461,14 +636,21 @@ plot(cdem_agg)
 
 Suppose we want to verify if there is a link between elevation and the intensity of defoliation due to the forest tent caterpillar. To do this, we need to learn a new function, `extract`, which extracts data from a raster object based on specific spatial locations. For example, this code returns the CDEM value at the location of UQAT (292 m).
 
-```{r extract_pt}
+
+```r
 extract(cdem, uqat)
+##     
+## 292
 ```
 
 What does `extract` return if we apply it to a polygon? Let's try with five defoliation polygons located in Rouyn-Noranda:
 
-```{r extract_poly}
+
+```r
 livree_rn <- st_intersection(livree2017, rn)
+## although coordinates are longitude/latitude, st_intersection assumes that they are planar
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 poly_ext <- extract(cdem, livree_rn[1:5, ])
 ```
 
@@ -478,16 +660,20 @@ The result is a list where each vector contains the CDEM values for all pixels w
 
 Depending on your computer, this function should take a minute or two to run. Once the mean elevation is computed, we copy the values to a new column in `livree_rn`.
 
-```{r poly_mean, results = "hide", warning = FALSE}
+
+```r
 moy_cdem <- extract(cdem, livree_rn, fun = mean)
 livree_rn$cdem <- moy_cdem[, 1]
 ```
 
 Finally, let's compare the distribution of elevation for defoliated areas with different intensity levels.
 
-```{r cdem_boxplot}
+
+```r
 boxplot(cdem ~ Ia, data = livree_rn)
 ```
+
+![](rgeo_workshop_files/figure-html/cdem_boxplot-1.png)<!-- -->
 
 ### Review
 
@@ -501,7 +687,8 @@ boxplot(cdem ~ Ia, data = livree_rn)
 
 The ***mapview*** package provides visualizations of `sf` and `raster` layers on an interactive map (similar to Google Maps) with different basemap options (e.g. OpenStreetMap, OpenTopoMap, ESRI World Imagery). It is as simple as calling the `mapview` function with the name of the spatial dataset. Additional data can be overlaid with the `+` operator.
 
-```{r mapview, eval = FALSE}
+
+```r
 library(mapview)
 
 mapview(cdem) + livree_rn[, "Niveau"]
@@ -534,9 +721,12 @@ mapview(cdem) + livree_rn[, "Niveau"]
 
 Produce a map with MRCs colored by administrative region, e.g.: Nord-du-Québec, Côte-Nord, etc.
 
-```{r sol1}
+
+```r
 plot(mrc[, "MRS_NM_REG"], key.size = lcm(5))
 ```
+
+![](rgeo_workshop_files/figure-html/sol1-1.png)<!-- -->
 
 [Return to text](#retour1)
 
@@ -545,10 +735,15 @@ plot(mrc[, "MRS_NM_REG"], key.size = lcm(5))
 
 The `st_intersection(A, B)` function returns the intersection of two vector datasets `A` and `B`, that is, the areas where objects in each dataset overlap. Using this function, determine how many MRCs are located within 100 km of the point `uqat`, and try to show on a map representing this circular area.
 
-```{r sol2}
+
+```r
 inters <- st_intersection(mrc_proj, rayon)
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 plot(inters[, "MRS_NM_MRC"], key.size = lcm(5))
 ```
+
+![](rgeo_workshop_files/figure-html/sol2-1.png)<!-- -->
 
 [Return to text](#retour2)
 
@@ -558,23 +753,31 @@ plot(inters[, "MRS_NM_MRC"], key.size = lcm(5))
 * Determine the total area (in hectares) defoliated by the forest tent caterpillar in the MRC of Rouyn-Noranda.
 * Produce a map of the defoliated areas with their intensity level for that MRC.
 
-```{r sol3}
+
+```r
 rn <- mrc[mrc$MRS_NM_MRC == "Rouyn-Noranda", ]
 
 # Verify that the CRS are identical
 st_crs(rn) == st_crs(livree2017)
+## [1] TRUE
 
 # Intersect the defoliation polygons with the MRC boundaries
 livree_rn <- st_intersection(livree2017, rn)
+## although coordinates are longitude/latitude, st_intersection assumes that they are planar
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 
 # Sum the areas of the polygons
 sum(livree_rn$SupHaCea)
+## [1] 52793.94
 
 
 plot(livree_rn[, "Ia"], reset = FALSE)
 plot(rn[, "geometry"], add = TRUE, reset = FALSE)
 plot(uqat, add = TRUE, pch = 20, col = "red")
 ```
+
+![](rgeo_workshop_files/figure-html/sol3-1.png)<!-- -->
 
 [Return to text](#retour3)
 
@@ -583,9 +786,17 @@ plot(uqat, add = TRUE, pch = 20, col = "red")
 
 From `cdem`, produce (a) a map where elevation is represented in km rather than meters and (b) a map indicating areas of elevation under 300 m.
 
-```{r sol4}
+
+```r
 plot(cdem / 1000)
+```
+
+![](rgeo_workshop_files/figure-html/sol4-1.png)<!-- -->
+
+```r
 plot(cdem < 300)
 ```
+
+![](rgeo_workshop_files/figure-html/sol4-2.png)<!-- -->
 
 [Return to text](#retour4)

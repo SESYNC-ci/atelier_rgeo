@@ -8,9 +8,7 @@ output:
         theme: united
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, collapse = TRUE)
-```
+
 
 ---
 
@@ -51,24 +49,75 @@ Le répertoire *mrc* contient les coordonnées des municipalités régionales de
 Pour charger un jeu de données dans R, nous appelons la fonction `st_read` (toutes les fonctions du package ***sf*** ont le préfixe `st_`, pour spatiotemporel) avec le nom du fichier *.shp*.
 
 
-```{r read_mrc}
+
+```r
 library(sf)
+## Linking to GEOS 3.6.1, GDAL 2.2.3, proj.4 4.9.3
 
 mrc <- st_read("mrc/mrc_polygone.shp", stringsAsFactors = FALSE)
+## Reading layer `mrc_polygone' from data source `C:\Users\marchanp\Desktop\atelier_rgeo\mrc\mrc_polygone.shp' using driver `ESRI Shapefile'
+## Simple feature collection with 137 features and 12 fields
+## geometry type:  POLYGON
+## dimension:      XY
+## bbox:           xmin: -79.7625 ymin: 44.99136 xmax: -56.93495 ymax: 62.58217
+## epsg (SRID):    4269
+## proj4string:    +proj=longlat +datum=NAD83 +no_defs
 ```
 
 Le texte de sortie indique certaines propriétés du jeu de données chargé, incluant le type de géométrie (POLYGON), les limites spatiales du jeu de données (*bbox*) et le système de coordonnées utilisé. Ce dernier est décrit sous deux formats: un code numérique *epsg* et une chaîne de caractère *proj4string*. Nous traiterons davantage des systèmes de coordonnées plus loin.
 
 Ces propriétés peuvent être extraites séparément à l'aide des fonctions `st_bbox` et `st_crs`:
-```{r bbox_crs}
+
+```r
 st_bbox(mrc)
+##      xmin      ymin      xmax      ymax 
+## -79.76250  44.99136 -56.93495  62.58217
 st_crs(mrc)
+## Coordinate Reference System:
+##   EPSG: 4269 
+##   proj4string: "+proj=longlat +datum=NAD83 +no_defs"
 ```
 
 Regardons un aperçu du jeu de données:
-```{r class_head}
+
+```r
 class(mrc)
+## [1] "sf"         "data.frame"
 head(mrc)
+## Simple feature collection with 6 features and 12 fields
+## geometry type:  POLYGON
+## dimension:      XY
+## bbox:           xmin: -79.7625 ymin: 48.92349 xmax: -63.31941 ymax: 62.58217
+## epsg (SRID):    4269
+## proj4string:    +proj=longlat +datum=NAD83 +no_defs
+##           AREA  PERIMETER MRC_S_ MRC_S_ID     MRS_NO_IND
+## 1 7.828380e+01 77.0855365      2        1 50 02 0040 000
+## 2 4.743960e-02  1.6709096      3        2 50 02 0040 000
+## 3 4.502033e+01 55.2806743      4        3 50 02 0040 000
+## 4 7.530857e-04  0.1519356      5        4 50 02 0010 000
+## 5 1.024437e+01 23.4016618      6        5 50 02 0010 000
+## 6 5.028808e-01  8.8274338      7        6 50 02 0010 000
+##                                     MRS_DE_IND MRS_CO_MRC
+## 1 Municipalité régionale de comté géographique        992
+## 2 Municipalité régionale de comté géographique        993
+## 3 Municipalité régionale de comté géographique        991
+## 4   MRC (incluant les territoires autochtones)        972
+## 5   MRC (incluant les territoires autochtones)        972
+## 6   MRC (incluant les territoires autochtones)        972
+##                         MRS_NM_MRC MRS_CO_REG     MRS_NM_REG MRS_CO_REF
+## 1 Administration régionale Kativik         10 Nord-du-Québec     BDGA1M
+## 2         Nouveau toponyme à venir         10 Nord-du-Québec     BDGA1M
+## 3                          Jamésie         10 Nord-du-Québec     BDGA1M
+## 4                      Caniapiscau         09      Côte-Nord     BDGA1M
+## 5                      Caniapiscau         09      Côte-Nord     BDGA1M
+## 6                      Caniapiscau         09      Côte-Nord     BDGA1M
+##   MRS_CO_VER                       geometry
+## 1   V2017-08 POLYGON ((-77.82293 55.2603...
+## 2   V2017-08 POLYGON ((-77.82293 55.2603...
+## 3   V2017-08 POLYGON ((-78.49988 55.0008...
+## 4   V2017-08 POLYGON ((-66.6878 55.00005...
+## 5   V2017-08 POLYGON ((-70.02987 55.0000...
+## 6   V2017-08 POLYGON ((-66.25978 55.0000...
 ```
 
 Un objet de classe `sf` est en fait un `data.frame` spécialisé, où chaque ligne contient des champs de données qui sont associés à un objet géométrique, décrit dans la colonne `geometry`. Les types géométriques les plus courants sont:
@@ -81,15 +130,23 @@ Un objet de classe `sf` est en fait un `data.frame` spécialisé, où chaque lig
 
 La fonction `plot` appliquée à un objet `sf` crée une carte de chaque attribut du jeu de données.
 
-```{r plot_sf}
+
+```r
 plot(mrc)
+## Warning: plotting the first 10 out of 12 attributes; use max.plot = 12 to
+## plot all
 ```
+
+![](atelier_rgeo_files/figure-html/plot_sf-1.png)<!-- -->
 
 Pour n'afficher qu'un attribut, il faut sélectionner la colonne correspondante. Pour n'afficher que la carte sans données, on peut choisir la colonne `geometry`. Le paramètre `axes = TRUE` indique au programme d'afficher les axes de coordonnées.
 
-```{r plot_geom}
+
+```r
 plot(mrc[, "geometry"], axes = TRUE)
 ```
+
+![](atelier_rgeo_files/figure-html/plot_geom-1.png)<!-- -->
 
 ### Exercice 1 {#retour1}
 
@@ -103,29 +160,52 @@ La fonction `st_as_sf` permet de convertir un `data.frame` contenant des coordon
 
 Ici, créons un jeu de données d'un seul point correspondant à la position de l'UQAT, avec le même système de coordonnées que `mrc` (longitude et latitude).
 
-```{r create_pt}
+
+```r
 uqat <- data.frame(nom = "UQAT", long = -79.0086, lat = 48.2306)
 uqat <- st_as_sf(uqat, coords = c("long", "lat"), crs = st_crs(mrc))
 ```
 
 Le package ***sf*** inclut différentes fonctions de comparaison entre données géométriques. Pour déterminer quel polygone de `mrc` contient le point `uqat`, on utilise la fonction `st_within`:
-```{r within}
+
+```r
 st_within(uqat, mrc)
+## although coordinates are longitude/latitude, st_within assumes that they are planar
+## Sparse geometry binary predicate list of length 1, where the predicate was `within'
+##  1: 56
 ```
 
 L'avertissement nous rappelle que les opérations géométriques de ce package sont basées sur un plan *xy* plutôt que des coordonnées sphériques (plus de détails ci-dessous). 
 
 Le résultat d'une comparaison entre deux jeux de données géométriques est une liste qui, pour chaque objet du premier jeu de données, contient les indices des objets du deuxième jeu de données auxquels la relation s'applique. Donc ici, le point 1 (et seul point) dans `uqat` est contenu (*within*) dans le polygone 56 de `mrc`. On peut vérifier de quelle MRC il s'agit: 
-```{r mrc56}
+
+```r
 mrc[56, ]
+## Simple feature collection with 1 feature and 12 fields
+## geometry type:  POLYGON
+## dimension:      XY
+## bbox:           xmin: -79.51763 ymin: 47.70263 xmax: -78.22 ymax: 48.57511
+## epsg (SRID):    4269
+## proj4string:    +proj=longlat +datum=NAD83 +no_defs
+##         AREA PERIMETER MRC_S_ MRC_S_ID     MRS_NO_IND
+## 56 0.7832265  4.624354     57       58 50 02 0040 000
+##                                      MRS_DE_IND MRS_CO_MRC    MRS_NM_MRC
+## 56 Municipalité régionale de comté géographique         86 Rouyn-Noranda
+##    MRS_CO_REG            MRS_NM_REG MRS_CO_REF MRS_CO_VER
+## 56         08 Abitibi-Témiscamingue     BDGA1M   V2017-08
+##                          geometry
+## 56 POLYGON ((-79.51749 48.4306...
 ```
 
 Pour afficher différents jeux de données sur la même carte, on appelle d'abord `plot` avec le paramètre `reset = FALSE`, puis on ajoute un autre jeu de données avec le paramètre `add = TRUE`. 
 
-```{r plot_overlap}
+
+```r
 plot(mrc[, "geometry"], reset = FALSE, axes = TRUE)
 plot(uqat, add = TRUE, pch = 20, col = "red")
 ```
+
+![](atelier_rgeo_files/figure-html/plot_overlap-1.png)<!-- -->
 
 ### Rappel
 
@@ -152,28 +232,43 @@ Par exemple, les images ci-dessous montrent comment des aires circulaires identi
 Nous allons convertir les polygones `mrc` et le point `uqat` dans une projection
 conique conforme de Lambert centrée sur le Québec ([code EPSG: 6622](https://epsg.io/6622)), en utilisant la fonction `st_transform`.
 
-```{r transform}
+
+```r
 mrc_proj <- st_transform(mrc, 6622)
 uqat_proj <- st_transform(uqat, 6622)
 
 uqat_proj
+## Simple feature collection with 1 feature and 1 field
+## geometry type:  POINT
+## dimension:      XY
+## bbox:           xmin: -774896.9 ymin: 527230.8 xmax: -774896.9 ymax: 527230.8
+## epsg (SRID):    6622
+## proj4string:    +proj=lcc +lat_1=60 +lat_2=46 +lat_0=44 +lon_0=-68.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
+##    nom                   geometry
+## 1 UQAT POINT (-774896.9 527230.8)
 ```
 
 Il est important de toujours utiliser la fonction `st_transform` pour convertir des jeux de données entre différents système de coordonnées. Une erreur courante consiste à changer la définition du système de coordonnées (par exemple, avec la fonction`st_crs`) sans transformer les données elles-mêmes.
 
 Notez que les coordonnées projetées sont exprimées en mètres ("+units=m" dans la *proj4string*). Ces coordonnées sont relatives à un point d'origine défini par la projection.
 
-```{r plot_geom_proj}
+
+```r
 plot(mrc_proj[, "geometry"], axes = TRUE)
 ```
 
+![](atelier_rgeo_files/figure-html/plot_geom_proj-1.png)<!-- -->
+
 On peut créer une carte montrant les lignes de latitude et longitude superposées aux données projetées, avec le paramètre `graticule` auquel on associe le système de coordonnées géographique des données originales:
 
-```{r plot_graticule}
+
+```r
 plot(mrc_proj[, "geometry"], axes = TRUE, reset = FALSE, 
      graticule = st_crs(mrc))
 plot(uqat_proj, add = TRUE, pch = 20, col = "red")
 ```
+
+![](atelier_rgeo_files/figure-html/plot_graticule-1.png)<!-- -->
 
 ### Rappel
 
@@ -187,7 +282,8 @@ plot(uqat_proj, add = TRUE, pch = 20, col = "red")
 
 Maintenant que nos données sont projetées, utilisons la fonction `st_buffer` pour définir un rayon de 100km autour du point `uqat`, que nous ajouterons à la carte:
 
-```{r buffer}
+
+```r
 rayon <- st_buffer(uqat_proj, dist = 100000)
 
 plot(mrc_proj[, "geometry"], axes = TRUE, reset = FALSE, 
@@ -195,6 +291,8 @@ plot(mrc_proj[, "geometry"], axes = TRUE, reset = FALSE,
 plot(uqat_proj, add = TRUE, pch = 20, col = "red")
 plot(rayon[, "geometry"], add = TRUE, border = "blue")
 ```
+
+![](atelier_rgeo_files/figure-html/buffer-1.png)<!-- -->
 
 **Question**: Combien y a-t-il de côtés dans le polygone `rayon`? (Regardez la colonne `geometry`.) C'est la valeur par défaut, mais un paramètre optionel de `st_buffer` permet de varier la résolution des segments circulaires.
 
@@ -212,15 +310,23 @@ Par exemple, le champ *AREA* de `mrc` réfère à l'aire de la MRC complète -- 
 
 Parmi les autres opérations géométriques utiles, notons `st_union`, qui combine plusieurs objets géométriques en un seul, ainsi que `st_difference`, qui enlève d'un jeu de données la région recouverte par un autre jeu de données.
 
-```{r union}
+
+```r
 poly_union <- st_union(mrc_proj)
 plot(poly_union)
 ```
 
-```{r difference}
+![](atelier_rgeo_files/figure-html/union-1.png)<!-- -->
+
+
+```r
 poly_diff <- st_difference(mrc_proj, rayon)
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 plot(poly_diff[, "geometry"])
 ```
+
+![](atelier_rgeo_files/figure-html/difference-1.png)<!-- -->
 
 ### Rappel
 
@@ -239,15 +345,24 @@ plot(poly_diff[, "geometry"])
 
 Les dossier *livree* contient des données sur la défoliation due à la livrée des forêts (*Malacosoma disstria*) au Québec entre 2014 et 2017 ([source des données sur Données Québec](https://www.donneesquebec.ca/recherche/fr/dataset/donnees-sur-les-perturbations-naturelles-insecte-livree-des-forets)).
 
-```{r read_livree}
+
+```r
 livree <- st_read("livree/Livree_2014_2017.shp")
+## Reading layer `Livree_2014_2017' from data source `C:\Users\marchanp\Desktop\atelier_rgeo\livree\Livree_2014_2017.shp' using driver `ESRI Shapefile'
+## Simple feature collection with 2944 features and 4 fields
+## geometry type:  MULTIPOLYGON
+## dimension:      XY
+## bbox:           xmin: -79.57113 ymin: 45.00835 xmax: -71.60867 ymax: 48.74596
+## epsg (SRID):    4269
+## proj4string:    +proj=longlat +datum=NAD83 +no_defs
 ```
 
 Pour chaque polygone de défoliation, le jeu de données indique l'année, la superficie en hectares (*SupHaCea*), ainsi que l'intensité de défoliation sous forme de texte (*Niveau*) et d'indice numérique (*Ia*): Léger (1), Modéré (2) ou Grave (3).
 
 Nous allons d'abord extraire les données de 2017 seulement. Puisqu'un jeu de données spatial est aussi un `data.frame`, on peut utiliser les méthodes habituelles en R pour filtrer les données selon un des champs.
 
-```{r livree2017}
+
+```r
 livree2017 <- livree[livree$ANNEE == 2017, ]
 ```
 
@@ -263,15 +378,7 @@ Pour cet exercice, vous devrez:
 
 [Solution](#sol3)
 
-```{r, echo = FALSE, include = FALSE}
-rn <- mrc[mrc$MRS_NM_MRC == "Rouyn-Noranda", ]
 
-# Vérifions que les systèmes de coordonnées soient identifiques
-st_crs(rn) == st_crs(livree2017)
-
-# Intersection des polygones de défoliation et de la MRC
-livree_rn <- st_intersection(livree2017, rn)
-```
 
 
 **Question:** Quels sont les problèmes potentiels avec cette méthode (voir les avertissements de R)?
@@ -280,15 +387,26 @@ livree_rn <- st_intersection(livree2017, rn)
 * Si des polygones chevauchaient les limites de la MRC, la superficie indiquée *SupHaCea* inclurait la partie extérieure.
 
 Ici, aucun des polygones n'est situé sur la limite, donc notre méthode est valide. Par contre, si on fait l'intersection avec l'ensemble des MRC, plusieurs polygones se retrouvent comptés deux fois:
-```{r livree_mrc_sum}
+
+```r
 livree_mrc <- st_intersection(livree2017, mrc)
+## although coordinates are longitude/latitude, st_intersection assumes that they are planar
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 sum(livree2017$SupHaCea) # Somme des superficies originales
+## [1] 305654.6
 sum(livree_mrc$SupHaCea) # Somme des superficies après l'intersection
+## [1] 383485.2
 ```
 
 En revenant aux données pour Rouyn-Noranda, on peut utiliser la fonction `aggregate` pour calculer le nombre d'hectares défoliés par niveau d'intensité:
-```{r livree_rn_agg}
+
+```r
 aggregate(SupHaCea ~ Niveau, data = livree_rn, sum)
+##   Niveau SupHaCea
+## 1  Grave 18377.87
+## 2  Léger 16187.58
+## 3 Modéré 18228.49
 ```
 
 
@@ -306,23 +424,30 @@ Voir [cette page](http://strimas.com/r/tidy-sf/) pour plus d'exemples de l'inté
 
 Jusqu'à maintenant, nous avons visualisé les données spatiales avec la fonction `plot`. Pour produire des cartes plus détaillées, par exemple pour une publication, le package ***tmap*** peut être utile. Pour créer une carte avec *tmap*, on définit d'abord les objets géométriques à présenter avec `tm_shape`, puis on ajoute des couches représentant diverses données. Par exemple, la fonction `tm_fill` associe une variable à la couleur intérieure des polygones:
 
-```{r tmap}
+
+```r
 library(tmap)
 
 tm_shape(livree_mrc) +
     tm_fill("Niveau") 
 ```
 
+![](atelier_rgeo_files/figure-html/tmap-1.png)<!-- -->
+
 L'ajout d'éléments au graphique avec le symbole `+` est inspirée du package graphique *ggplot2*. Comme ce dernier, *tmap* peut diviser les données en facettes selon une des variables du jeu de données. Ici, nous utiliserons la région adminsitrative indiquée dans la colonne *MRS_NM_REG*:
-```{r tmap_facets}
+
+```r
 tm_shape(livree_mrc) +
     tm_fill("Niveau") +
     tm_facets("MRS_NM_REG")
 ```
 
+![](atelier_rgeo_files/figure-html/tmap_facets-1.png)<!-- -->
+
 Finalement, voici comment superposer à ces données les limites des MRC (avec `tm_polygons`) et leur nom (avec `tm_text`). Notez que l'ordre dans lequel les éléments sont définis détermine leur superposition sur la carte: 
 
-```{r tmap_overlap}
+
+```r
 tm_shape(mrc) +
     tm_polygons() +
     tm_text("MRS_NM_MRC") +
@@ -330,6 +455,8 @@ tm_shape(livree_mrc) +
     tm_fill("Niveau") +
     tm_facets("MRS_NM_REG")
 ```
+
+![](atelier_rgeo_files/figure-html/tmap_overlap-1.png)<!-- -->
 
 ### Rappel
 
@@ -348,17 +475,30 @@ Le CDEM est un jeu de données matriciel; une grille régulière est superposée
 
 La résolution de base du CDEM est 1/4800 de degré et les données sont disponibles en sections de 2 degrés de longitude par 1 degré de latitude. Nous allons d'abord charger l'index du CDEM, un fichier indiquant la région rectangulaire correspondant à chaque section. Cet index se trouve aussi dans le dossier *cdem* sous format *.kml*, un type de données vectorielles utilisé notamment par Google Earth.
 
-```{r read_cdem_idx}
+
+```r
 cdem_index <- st_read("cdem/cdem_index_250k.kml", stringsAsFactors = FALSE)
+## Reading layer `cdem_shp_index' from data source `C:\Users\marchanp\Desktop\atelier_rgeo\cdem\cdem_index_250k.kml' using driver `KML'
+## Simple feature collection with 969 features and 2 fields
+## geometry type:  GEOMETRYCOLLECTION
+## dimension:      XYZ
+## bbox:           xmin: -142 ymin: 41 xmax: -52 ymax: 83
+## epsg (SRID):    4326
+## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ```
 
 **Question:** Quel opération utiliseriez-vous pour déterminer les sections du CDEM couvrant l'étendue de la MRC de Rouyn-Noranda?
 
-```{r get_rn_cdem}
+
+```r
 rn <- mrc[mrc$MRS_NM_MRC == "Rouyn-Noranda", ]
 cdem_index <- st_transform(cdem_index, st_crs(rn))
 cdem_rn <- st_intersection(cdem_index, rn)
+## although coordinates are longitude/latitude, st_intersection assumes that they are planar
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 cdem_rn$Name
+## [1] "031M" "032D"
 ```
 
 Le territoire de la MRC chevauche les sections 31M et 32D. Ces deux sections se retrouvent aussi dans le dossier *cdem* sous format GeoTiff (*.tif*). Pour charger et traiter des données matricielles dans R, nous utiliserons le package ***raster***.
@@ -369,38 +509,64 @@ Le territoire de la MRC chevauche les sections 31M et 32D. Ces deux sections se 
 
 Chargeons d'abord l'une des deux sections du CDEM, avec la fonction `raster`. Cette fonction associe le jeu de données à un objet de type `raster`, dont les propriétés peuvent être consultées en appelant son nom à la fenêtre de commandes.
 
-```{r read_raster}
+
+```r
 library(raster)
+## Loading required package: sp
 cdem32D <- raster("cdem/cdem_dem_032D.tif")
 cdem32D
+## class       : RasterLayer 
+## dimensions  : 4801, 9601, 46094401  (nrow, ncol, ncell)
+## resolution  : 0.0002083333, 0.0002083333  (x, y)
+## extent      : -80.0001, -77.9999, 47.9999, 49.0001  (xmin, xmax, ymin, ymax)
+## coord. ref. : +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs 
+## data source : C:\Users\marchanp\Desktop\atelier_rgeo\cdem\cdem_dem_032D.tif 
+## names       : cdem_dem_032D 
+## values      : -32768, 32767  (min, max)
 ```
 
 Ces propriétés incluent les dimensions du raster (nombre de rangées et colonnes), sa résolution (dans les mêmes unités que le système de coordonnées, ici en degrés), son étendue (semblable à `bbox` pour les données vectorielles) et son système de coordonnées (en format *proj4string*). On peut extraire ces valeurs séparément avec les fonctions `dim`, `res` `extent` et `crs`.
 
-```{r dim_extent}
+
+```r
 dim(cdem32D)
+## [1] 4801 9601    1
 extent(cdem32D)
+## class       : Extent 
+## xmin        : -80.0001 
+## xmax        : -77.9999 
+## ymin        : 47.9999 
+## ymax        : 49.0001
 ```
 
 *Note:* Même si l'expression *proj4string* du CDEM diffère de celle du jeu de données du MRC, NAD83 et GRS80 sont basés sur le même système de référence géodésique, donc les coordonnées sont bien équivalentes.
 
 Puisque les jeux de données matriciels sont généralement assez volumineux (ex.: 88 Mo pour chaque section du CDEM), `raster` ne charge pas toutes les données dans la mémoire vive, mais crée plutôt un lien vers le fichier sur le disque. Les fonctions de visualisation prennent quant à elle un échantillon stratifié des données. Par exemple, l'histogramme des valeurs de `cdem32D` est construit à partir de 100 000 pixels sur ~46 millions.
 
-```{r hist_raster}
+
+```r
 hist(cdem32D)
+## Warning in .hist1(x, maxpixels = maxpixels, main = main, plot = plot, ...):
+## 0% of the raster cells were used. 100000 values used.
 ```
+
+![](atelier_rgeo_files/figure-html/hist_raster-1.png)<!-- -->
 
 C'est aussi le cas de la fonction `plot`, qui présente une image du jeu de données matriciel. Comme auparavant, il est possible d'y superposer des données vectorielles avec l'option `add = TRUE` (`reset = FALSE` n'est pas nécessaire ici).
 
 
-```{r plot_raster}
+
+```r
 plot(cdem32D)
 plot(mrc[, "geometry"], add = TRUE)
 ```
 
+![](atelier_rgeo_files/figure-html/plot_raster-1.png)<!-- -->
+
 Nous allons maintenant charger la deuxième section du CDEM, puis combiner les deux jeux de données en une seule matrice avec la fonction `merge`. 
 
-```{r merge_raster}
+
+```r
 cdem31M <- raster("cdem/cdem_dem_031M.tif")
 cdem <- merge(cdem32D, cdem31M)
 ```
@@ -411,13 +577,16 @@ Dépendamment du système, il est possible que le nouvel objet `cdem` (350 Mo) s
 
 Pour réduire l'étendue géographique d'un `raster` aux limites d'un autre objet spatial (`raster` ou `sf`), on utilise la fonction `crop`. Ici, nous allons extraire la section rectangulaire contenant tout juste la MRC de Rouyn-Noranda.
 
-```{r crop_raster}
+
+```r
 rn <- mrc[mrc$MRS_NM_MRC == "Rouyn-Noranda", ]
 cdem <- crop(cdem, rn)
 
 plot(cdem)
 plot(rn[, "geometry"], add = TRUE)
 ```
+
+![](atelier_rgeo_files/figure-html/crop_raster-1.png)<!-- -->
 
 Puisque les objets `raster` sont fondamentalement des matrices de données, on peut y appliquer les mêmes opérations mathématiques de base que les matrices régulières. Par exemple, si *X* est une matrice dans R, `X + 5` retourne une matrice où 5 est ajouté à chaque élément de *X*, et `X-Y` retourne une matrice où chaque élément de *Y* est soustrait à l'élément de *X* correspondant. 
 
@@ -430,17 +599,23 @@ Puisque les objets `raster` sont fondamentalement des matrices de données, on p
 ---
 
 Pour exclure les régions de 300 mètres et plus, mais conserver l'information sur l'altitude pour les autres régions, on peut utiliser la fonction `mask`.
-```{r mask_raster}
+
+```r
 plot(mask(cdem, cdem < 300, maskvalue = FALSE))
 ```
+
+![](atelier_rgeo_files/figure-html/mask_raster-1.png)<!-- -->
 
 Le paramètre `maskvalue` indique d'exclure les pixels pour lesquels la condition du masque (`cdem < 300`) retourne `FALSE`.
 
 En raison de limites de temps ou de mémoire, il est parfois nécessaire de réduire la résolution de données matricielles. La fonction `aggregate` appliquée à un objet `raster` permet de réduire le nombre de pixels par un facteur donné en regroupant les valeurs selon une fonction sommaire. Par exemple, l'instruction suivante regroupe des régions de 50 x 50 pixels en prenant la moyenne des valeurs originales.
-```{r agg_raster}
+
+```r
 cdem_agg <- aggregate(cdem, fact = 50, fun = mean)
 plot(cdem_agg)
 ```
+
+![](atelier_rgeo_files/figure-html/agg_raster-1.png)<!-- -->
 
 ### Rappel
 
@@ -459,14 +634,21 @@ plot(cdem_agg)
 
 Admettons que nous souhaitons vérifier s'il existe un lien entre l'altitude et l'intensité de défoliation due à la livrée des forêts. Pour ce faire, nous devons utiliser une nouvelle fonction, `extract`, qui extrait les données d'un objet `raster` pour des coordonnées géographiques spécifiées. Par exemple, l'instruction suivante retourne la valeur du CDEM à la position de l'UQAT (292 m).
 
-```{r extract_pt}
+
+```r
 extract(cdem, uqat)
+##     
+## 292
 ```
 
 Quel est le résultat si on extrait les valeurs du CDEM correspondant à un polygone? Essayons avec cinq polygones de défoliation sur le territoire de Rouyn-Noranda.
 
-```{r extract_poly}
+
+```r
 livree_rn <- st_intersection(livree2017, rn)
+## although coordinates are longitude/latitude, st_intersection assumes that they are planar
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 poly_ext <- extract(cdem, livree_rn[1:5, ])
 ```
 
@@ -476,16 +658,20 @@ Le résultat est une liste où chaque vecteur contient les valeurs du CDEM pour 
 
 L'instruction suivante prendra 1 à 2 minutes à s'exécuter, dépendamment de votre ordinateur. Une fois les moyennes calculées, nous enregistrons le résultat dans une nouveau champ de données de l'objet `livree_rn`.
 
-```{r extract_poly_mean, results = "hide", warning = FALSE}
+
+```r
 moy_cdem <- extract(cdem, livree_rn, fun = mean)
 livree_rn$cdem <- moy_cdem[, 1]
 ```
 
 Finalement, comparons la distribution de l'altitude des régions touchées par différents niveaux de défoliation.
 
-```{r cdem_boxplot}
+
+```r
 boxplot(cdem ~ Ia, data = livree_rn)
 ```
+
+![](atelier_rgeo_files/figure-html/cdem_boxplot-1.png)<!-- -->
 
 ### Rappel
 
@@ -499,7 +685,8 @@ boxplot(cdem ~ Ia, data = livree_rn)
 
 Le package ***mapview*** permet de visualiser des objets `sf` ou `raster` sur une carte interactive (de style Google Maps), avec différentes options de couche de base (ex. OpenStreetMap, OpenTopoMap, World Imagery d'ESRI). Il suffit d'appeler la fonction `mapview` avec le nom de l'objet spatial à afficher. D'autres données spatiales peuvent y être superposées avec `+`.
 
-```{r mapview, eval = FALSE}
+
+```r
 library(mapview)
 
 mapview(cdem) + livree_rn[, "Niveau"]
@@ -532,9 +719,12 @@ mapview(cdem) + livree_rn[, "Niveau"]
 
 Produisez une carte coloriée par région administrative, ex.: Nord-du-Québec, Côte-Nord, etc.
 
-```{r sol1}
+
+```r
 plot(mrc[, "MRS_NM_REG"], key.size = lcm(5))
 ```
+
+![](atelier_rgeo_files/figure-html/sol1-1.png)<!-- -->
 
 [Retour](#retour1)
 
@@ -543,10 +733,15 @@ plot(mrc[, "MRS_NM_REG"], key.size = lcm(5))
 
 La fonction `st_intersection(A, B)` retourne l'intersection de deux jeux de données vectoriels `A` et `B`, c'est-à-dire les régions où leurs objets géométriques se superposent. Avec cette fonction, identifiez le nombre de MRC situées dans un rayon de 100km du point `uqat`, puis essayez de les indiquer sur une carte représentant ce rayon. 
 
-```{r sol2}
+
+```r
 inters <- st_intersection(mrc_proj, rayon)
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 plot(inters[, "MRS_NM_MRC"], key.size = lcm(5))
 ```
+
+![](atelier_rgeo_files/figure-html/sol2-1.png)<!-- -->
 
 [Retour](#retour2)
 
@@ -556,23 +751,31 @@ plot(inters[, "MRS_NM_MRC"], key.size = lcm(5))
 * Déterminer la superficie totale (en hectares) défoliée par la livrée des forêts sur le territoire de la MRC de Rouyn-Noranda.
 * Produire une carte des surfaces défoliées avec leur niveau d'intensité pour ce territoire.
 
-```{r sol3}
+
+```r
 rn <- mrc[mrc$MRS_NM_MRC == "Rouyn-Noranda", ]
 
 # Vérifions que les systèmes de coordonnées soient identifiques
 st_crs(rn) == st_crs(livree2017)
+## [1] TRUE
 
 # Intersection des polygones de défoliation et de la MRC
 livree_rn <- st_intersection(livree2017, rn)
+## although coordinates are longitude/latitude, st_intersection assumes that they are planar
+## Warning: attribute variables are assumed to be spatially constant
+## throughout all geometries
 
 # Somme des superficies de l'intersection
 sum(livree_rn$SupHaCea)
+## [1] 52793.94
 
 
 plot(livree_rn[, "Ia"], reset = FALSE)
 plot(rn[, "geometry"], add = TRUE, reset = FALSE)
 plot(uqat, add = TRUE, pch = 20, col = "red")
 ```
+
+![](atelier_rgeo_files/figure-html/sol3-1.png)<!-- -->
 
 [Retour](#retour3)
 
@@ -581,9 +784,17 @@ plot(uqat, add = TRUE, pch = 20, col = "red")
 
 À partir de `cdem`, produisez (a) une carte où l'altitude est exprimée en kilomètres plutôt qu'en mètres et (b) une carte où les régions d'altitude inférieure à 300 mètres sont identifiées.
 
-```{r sol4}
+
+```r
 plot(cdem / 1000)
+```
+
+![](atelier_rgeo_files/figure-html/sol4-1.png)<!-- -->
+
+```r
 plot(cdem < 300)
 ```
+
+![](atelier_rgeo_files/figure-html/sol4-2.png)<!-- -->
 
 [Retour](#retour4)
