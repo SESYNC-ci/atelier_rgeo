@@ -149,6 +149,7 @@ Tel que mentionné ci-dessus, les fonctions du packages ***sf*** sont basées su
 Une projection convertit les coordonnées géographiques en coordonnées planes. Puisqu'il est impossible de représenter fidèlement la surface entière du globe sur un plan, des projections spécialisées ont été développées en fonction de la région du monde et des besoins précis. 
 
 Par exemple, les images ci-dessous montrent comment des aires circulaires identiques à différents points du globe apparaissent sur une projection de Mercator (formes comparables) et sur une projection équivalente de Lambert (aires comparables).
+
 ![Projection de Mercator](images/Mercator_distortion.png) ![Projection équivalente de Lambert](images/Lambert_distortion.png)
 
 Nous allons convertir les polygones `mrc` et le point `uqat` dans une projection
