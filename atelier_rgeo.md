@@ -32,7 +32,7 @@ Au départ, l'utilisation de commandes de programmation pour manipuler des donn�
 
 ## Table des matières
 
-* [Explorer un jeu de données vectoriels](#vect)
+* [Explorer un jeu de données vectoriel](#vect)
 * [Systèmes de coordonnées et transformations](#crs)
 * [Opérations géométriques sur les données vectorielles](#vectop)
 * [Cartes thématiques avec *tmap*](#tmap)
