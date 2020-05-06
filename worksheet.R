@@ -1,251 +1,238 @@
-### Worksheet for:
-### Introduction to geospatial data analysis in R
+# Introduction to geospatial data analysis in R - Worksheet
 
 #### Explore a vector dataset ####
 
 library(sf)
 
-# Load MRC polygons
-
+# Load MRC data
 mrc <- ...
 
 
-# Visualize sf data
-
+# Display vector layer
 plot(...)
 
 plot(..., axes = TRUE)
+
+
+# Select subsets of rows or columns
+mrc[, ]
 
 
 #### Exercise 1 ####
 
-### Produce a map with MRCs colored by administrative region, 
-### e.g.: Nord-du-Québec, Côte-Nord, etc.
+# Select the MRCs in the Bas-St-Laurent (*reg_id*: 01) and Gaspesie (*reg_id*: 11) 
+# regions, then display their 2016 population on a map.  
+
+# Hint: The operator %in% can check if a variable has one value within a set, 
+# for example x %in% c(1, 3) returns TRUE if x is equal to 1 or 3.
 
 
 
 
+# Integration with the dplyr package 
+library(dplyr)
 
-# Create a sf object from a data.frame
-
-uqat <- data.frame(nom = "UQAT", long = -79.0086, lat = 48.2306)
-
-uqat <- st_as_sf(..., coords = ..., crs = ...)
-
-
-# In which MRC is UQAT located?
-
-st_within(..., ...)
+# Name and population for MRCs with population over 200,000
+filter(...) %>%
+    select(...)
 
 
-# Overlap multiple datasets on a map
+# Sum population by region
+regions <- group_by(...) %>%
+    summarize(...)
 
-plot(mrc[, "geometry"], ..., axes = TRUE)
-
-plot(uqat, ..., pch = 20, col = "red")
-
-
-#### Coordinate systems ####
-
-# Coordinate transformation
-
-mrc_proj <- st_transform(...)
-
-uqat_proj <- ...
+plot(...)
 
 
-plot(..., axes = TRUE)
+# Create a spatial object from a data frame
+
+plots <- read.csv("data/plots.csv")
+
+plots <- st_as_sf(plots, ...)
+
+plot(...)
 
 
-# Map with longitude and latitude lines
+#### Coordinate reference systems and transformations ####
 
-plot(mrc_proj[, "geometry"], axes = TRUE, reset = FALSE, 
-     ...)
+mrc_proj <- ...(mrc, ...)
 
-plot(uqat_proj, add = TRUE, pch = 20, col = "red")
+plot(mrc_proj["geometry"], axes = TRUE)
+
+# Add graticule
+plot(mrc_proj["geometry"], axes = TRUE, ...)
 
 
-#### Geometric operations on vector data ####
+#### Customize maps with ggplot2 ####
 
-# Create a buffer zone
+library(ggplot2)
 
-rayon <- st_buffer(..., dist = ...)
+# Bar chart of forest inventory plots by height class and cover type 
+ggplot(data = ..., aes(... = height_cls, ... = cover_type)) + 
+    ...() +
+    labs(title = "Forest inventory plots", x = "Height class", 
+         y = "Count", fill = "Cover type")
 
-plot(..., add = TRUE, border = "blue")
+# Simple map
+ggplot(...) +
+    ...()
+
+# Multiple layers
+theme_set(theme_bw())
+ggplot() +
+    geom_sf(data = ...) +
+    geom_sf(data = ..., aes(...), size = 1) +
+
+# Change coordinate systems
+ggplot(data = plots) +
+    geom_sf() +
+    ...
+
+# Add labels, select section of map
+ggplot(data = regions) +
+    geom_sf(aes(fill = pop2016)) +
+    geom_sf_label(aes(...)) +
+    coord_sf(...)
 
 
 #### Exercise 2 ####
 
-# The `st_intersection(A, B)` function returns the intersection of two vector 
-# datasets `A` and `B`, that is, the areas where objects in each dataset overlap. 
-# 
-# Using this function, determine how many MRCs are located within 100 km of 
-# the point `uqat`, and try to show on a map representing this circular area.
+# Create a map of the MRCs with different fill colors for each region.
 
 
 
 
-# Union of polygons
+#### Geometric operations on vector data ####
 
-poly_union <- ...
+areas <- ...
+
+# Change units
+units(areas) <- ...
+
+# Which plots and MRCs intersect?
+inters <- ...
+
+# Spatial join
+plots_mrc <- ...
+
+mrc_01_11 <- mrc[...]
+plots_01_11 <- ...
 
 
-# Difference of polygons
-
-poly_diff <- st_difference(..., ...)
-
-plot(poly_diff[, "geometry"])
-
-
-#### Defoliation due to the forest tent caterpillar ####
-
-# Read data and select polygons for the year 2017
-
-livree <- st_read("livree/Livree_2014_2017.shp")
-
-livree2017 <- livree[..., ]
+# Show on map
+ggplot() +
+    geom_sf(data = mrc_01_11) +
+    geom_sf(data = plots_01_11)
 
 
 #### Exercise 3 ####
 
-# 1. Determine the total area (in hectares) defoliated by the forest tent
-#    caterpillar in the MRC of Rouyn-Noranda.
-# 2. Produce a map of the defoliated areas with their intensity level for that MRC.
+# The shapefile "data/tbe2016_gaspe.shp" contains a map of areas defoliated
+# by the spruce budworm in the Bas-St-Laurent and Gaspesie regions in 2016. 
+# The defoliation level is represented by an integer: 
+#   1 = Light, 2 = Moderate and 3 = Severe.
 
-# Suggested steps:
-#  - Extract the Rouyn-Noranda MRC from the `mrc` dataset.
-#  - Extract data from `livree2017` located within the MRC. 
-#  Before applying spatial comparison operators, make sure the datasets 
-#  have comparable coordinates. It is fine to work in geographic coordinates 
-#  (longitude and latitude) for this case.
+# a) How many forest inventory plots in these regions are affected 
+#    at each defoliation level? 
+# Hint: The `table` function could be useful to get counts of each value in a column.
 
 
-rn <- ...
 
-livree_rn <- ...
-
-plot(...)
+# b) Plot the defoliated areas located in the MRC of Kamouraska, along with the MRC border.
 
 
 
 
-# Defoliation polygons by MRC
+# Create a buffer around points
 
-livree_mrc <- ...
+plots_proj <- st_transform(plots_01_11, crs = 6622)
 
-# Defoliated area by intensity level in Rouyn-Noranda
+plots_buffer <- ...
 
-aggregate(..., data = livree_rn, ...)
+ggplot() +
+    geom_sf(data = plots_buffer, linetype = "dotted", fill = NA) +
+    geom_sf(data = plots_proj)
 
+# Negative distance buffer
+mrc_01_11_proj <- st_transform(mrc_01_11, crs = 6622)
+mrc_buffer <- st_buffer(mrc_01_11_proj, ...)
 
-#### Thematic maps with tmap ####
-
-library(tmap)
-
-# Map of defoliation polygons
-
-tm_shape(...) +
-    ...
-
-# With MRC boundaries and names
-
-tm_shape(mrc) +
-    tm_polygons() +
-    tm_text(...) +
-tm_shape(livree_mrc) +
-    ...("Niveau") +
-    ...("MRS_NM_REG")
+ggplot() +
+    geom_sf(data = mrc_buffer, linetype = "dotted", fill = NA) +
+    geom_sf(data = mrc_01_11_proj, fill = NA)
 
 
-#### Raster data: Canadian Digital Elevation Model ####
+# Union of polygons
 
-# Read the index
-
-cdem_index <- ...("cdem/cdem_index_250k.kml", stringsAsFactors = FALSE)
-
-# Find which CDEM sections cover the MRC of Rouyn-Noranda
-
-cdem_index <- st_transform(cdem_index, ...)
-
-cdem_rn <- ...
+buffer_union <- ...
 
 
-#### Working with raster data ####
+# Difference
 
-# Read data
+mrc_edge <- ...
 
-library(raster)
+ggplot(mrc_edge) +
+    geom_sf()
 
-cdem32D <- ...
 
-# Visualize raster data
+#### Raster datasets ####
 
-hist(cdem32D)
+library(stars)
 
-plot(cdem32D)
+# Load a raster
+cdem <- ...("data/cdem_022BC_3s.tif")
 
-# Add a vector layer
+
+# Plot a raster
 
 plot(...)
 
+ggplot() +
+    geom_stars(...) +
+    geom_sf(...) +
+    scale_fill_viridis_c() +
+    coord_sf(xlim = c(-70, -66), ylim = c(48, 49))
 
-# Combine two sections of the CDEM
 
-cdem31M <- ...
+# Raster operations
 
-cdem <- ...
+# Crop by coordinate values
+cdem_part <- filter(...)
+
+# Crop by polygon (MRC of La Mitis)
+
+mitis <- ...
+
+mitis <- st_transform(mitis, ...)
+
+cdem_mitis <- ...
 
 
-# Crop the extent of a raster
+# Raster math
+cdem_km <- ...
 
-cdem <- crop(...)
-
-plot(cdem)
-
-plot(...)
+cdem_500 <- ...
 
 
 #### Exercise 4 ####
 
-# From `cdem`, produce 
-#  (a) a map where elevation is represented in km rather than meters and 
-#  (b) a map indicating areas of elevation under 300 m.
+# a) Show a map of the points in the MRC of La Mitis 
+#    with an elevation between 5 and 100 m. 
+
+
+# b) What is the highest elevation in that MRC?
 
 
 
 
+#### Extract values from raster at points ####
 
-# Masking data
+library(raster)
 
-plot(mask(cdem, ..., maskvalue = ...))
+# Convert from stars to raster format
+cdem_r <- as(cdem, "Raster") 
 
-
-# Reduce the resolution of a raster
-
-cdem_agg <- aggregate(cdem, ..., ...)
-
-
-#### Extract raster variables based on vector layers ####
-
-# Extract the value for a point
-
-extract(..., ...)
-
-# Extract using polygons
-
-poly_ext <- extract(..., ...)
-
-
-# Mean value per polygon
-
-moy_cdem <- extract(cdem, ..., fun = ...)
-
-livree_rn$cdem <- ...
-
-
-# Elevation by intensity level
-
-boxplot(...)
+plots_elev <- ...
 
 
 #### Interactive maps with mapview ####

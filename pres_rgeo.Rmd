@@ -1,153 +1,273 @@
 ---
-title: "Introduction à l'analyse de données géospatiales avec R"
-author: "Philippe Marchand"
-date: "11 mai 2018"
-output: slidy_presentation
+title: "Introduction au traitement des données géospatiales avec R"
+author: Philippe Marchand
+date: "http://pmarchand1.github.io/atelier_rgeo/"
+output: 
+  xaringan::moon_reader:
+    css: ["default", "metropolis", "metropolis-fonts", "styles-xar8202.css"]
+    lib_dir: libs
+    nature:
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
 ---
 
-## Contenu de l'atelier en ligne
+# Données géospatiales
 
-http://pmarchand1.github.io/atelier_rgeo
+- Utilisées de plus en plus dans divers champs d'études (ex.: photos aériennes, images satellite, données de recensement, contenu géoréférencé sur les réseaux sociaux, etc.)
 
-## Données géoréférencées
+--
 
-* De plus en plus nombreuses dans divers domaines (photos aériennes, images satellite, données du recensement, messages géoréférencés sur les réseaux sociaux, etc.). 
+- Données matricielles: variables définies à chaque point d'une grille couvrant l'étendue complète des données, ex.: image satellite.
 
-* Données matricielles: valeur à chaque point d'une grille couvrant l'espace (ex.: image satellite).
+--
 
-* Données vectorielles: variables associés à des lieux discrets (points, lignes, polygones).
+- Données vectorielles: variables associées à des objets géométriques placés à des endroits précis (comme la position des villes et des chemins sur une carte routière).
 
+---
 
-## Pourquoi R?
+# Pourquoi R?
 
-Au départ, écrire un programme pour manipuler des données géographiques peut sembler moins intuitif, comparé à l'interface graphique de logiciels spécialisés comme ArcGIS.
+Au départ, l'utilisation de commandes de programmation pour manipuler des données géographiques peut sembler moins intuitive que l'interface graphique de logiciels spécialisés (ex.: ArcGIS). 
 
-Quelques avantages d'une analyse programmée:
+--
 
-* Il est facile de répéter l'analyse pour de nouvelles données en ré-exécutant le programme.
+Voici quelques avantages d'une analyse programmée:
 
-* Il est facile pour d'autres chercheurs de reproduire la méthodologie s'ils ont accès au même langage de programmation.
+-  Il est facile de répéter l'analyse pour de nouvelles données en ré-exécutant le programme.
 
-* Avec R, on peut extraire des variables spatiales et les combiner à d'autres analyses statistiques avec un seul programme.
+--
 
+- Il est facile pour d'autres chercheurs de reproduire la méthodologie s'ils ont accès au même langage de programmation.
 
-## Objectifs
+--
 
-* Se familiariser avec les principaux packages permettant le traitement et la visualisation simple de données vectorielles (***sf***) et matricielles (***raster***) en R. 
+- Dans le cas spécifique de R, on peut extraire des variables spatiales et les combiner à d'autres analyses statistiques avec un seul programme.
 
-* Effectuer des transformations de données courantes à l'aide des fonctions de ces packages.
+---
 
-* Connaître certains packages permettant des visualisations plus complexes: ***tmap*** pour des cartes statiques et ***mapview*** pour des cartes interactives.
+# Objectifs
 
+- Se familiariser avec des packages R permettant le traitement et la visualisation simple de données vectorielles (***sf***) et matricielles (***stars***). 
 
-## Explorer un jeu de données vectoriel
+- Effectuer des transformations de données courantes à l'aide des fonctions de ces packages.
 
-* Lire des fichiers de données vectorielles.
+- Créer des cartes statiques plus complexes (avec ***ggplot2***) et des cartes interactives (avec ***mapview***).
 
-* Visualiser des variables sur une carte.
+---
 
-* Superposer plusieurs jeux de données.
+# Explorer un jeu de données vectoriel
 
+- Lire les données vectorielles dans R.
 
-## Explorer un jeu de données vectoriel
+- Visualiser des variables sur une carte.
 
-* Le package ***sf*** permet de travailler avec les données vectorielles (points, lignes et polygones) dans R.
+- Manipuler les tableaux de données spatiaux avec ***dplyr***.
 
-* Lire un jeu de données: `st_read`.
+---
 
-* Convertir un *dataframe* en objet spatial: `st_as_sf`.
+# Explorer un jeu de données vectoriel
 
-* Opérations de base des *dataframe* s'appliquent aussi aux objets *sf*.
+- Les données spatiales vectorielles associent des variables à des objets géométriques tels que des points, lignes et polygones. Le package ***sf*** permet de manipuler ces jeux de données dans R.
 
-* Visualiser sur une carte: `plot`.
+--
 
-* Relation d'inclusion entre objets géométriques: `st_within`.
+- Lire des données vectorielles: `st_read`.
 
+- Convertir un `data.frame` en objet spatial: `st_as_sf`.
 
-## Systèmes de coordonnées et transformations
+--
 
-* Coordonnées géographiques (longitude et latitude, en degrés): requièrent un système de référence géodésique (*datum*).
+- Les opérations de base des `data.frame`, ainsi que les fonctions du package ***dplyr***, s'appliquent aussi aux objets `sf`.
 
-* Coordonnées planes (en mètres): requièrent un système de coordonnées géographiques et une projection.
+--
 
-* Impossible de représenter fidèlement une surface courbe sur un plan. Différentes projections sont adaptées à des régions et des besoins précis.
+- La fonction `plot` appliquée à un objet `sf` montre une ou plusieurs variables sur une carte.
 
+---
 
-## Systèmes de coordonnées et transformations
+# Systèmes de coordonnées et transformations
 
-Exemple:
+- Coordonnées géographiques (longitude et latitude, en degrés): requièrent une référence géodésique ou *datum*.
 
-* Les cercles rouges sont des régions de forme et taille identiques en réalité.
+--
 
-* Projection de Mercator (gauche): régions de formes comparables, mais de superficie non équivalente.
+- Coordonnées planes ou projetées (en mètres): requièrent des coordonnées géographiques en plus d'une projection.
 
-* Projection équivalente de Lambert (droite); régions de superficie comparables, mais déformées.
+--
 
-![Projection de Mercator](images/Mercator_distortion.png) ![Projection équivalente de Lambert](images/Lambert_distortion.png)
+- Il est impossible de représenter exactement une surface courbée sur un plan. Différentes projections sont adaptées à des régions ou des besoins spécifiques.
 
+---
 
+# Exemples de projections
 
-## Systèmes de coordonnées et transformations
+- Projection de Mercator (gauche): préserve la forme, mais pas la taille.
 
-* Vérifier le système de coordonnées: `st_crs`.
+- Projection de Lambert équivalente (droite): préserve la taille, mais pas la forme.
 
-* Transformer les coordonnées d'un système à un autre: `st_transform`.
+![Mercator projection](images/Mercator_distortion.png) ![Lambert equal-area projection](images/Lambert_distortion.png)
 
+---
 
-## Opérations géométriques sur les données vectorielles
+# Systèmes de coordonnées et transformations
 
-![](images/op_geom.png)
+- Pour afficher le système de coordonnées: `st_crs`.
 
+- Pour transformer les données d'un CRS à un autre: `st_transform`.
 
-## Cartes thématiques avec *tmap*
+---
 
-https://github.com/mtennekes/tmap
+# Cartes détaillées avec ggplot2
 
+- Structure de base des graphiques `ggplot`.
 
-## Cartes thématiques avec *tmap*
+- Afficher une ou plusieurs couches de données spatiales sur une carte.
 
-* Définir les objets géométriques à afficher: `tm_shape`.
+- Changer de systèmes de coordonnées et annoter une carte.
 
-* Ajouter des couches de données avec `+` (ex.: `tm_fill`, `tm_text`).
+---
 
-* Diviser en plusieurs cartes selon une variable: `tm_facets`.
+# Cartes détaillées avec ggplot2
 
+- Élément d'un graphique ***ggplot2***: fonction `ggplot()`, définition de chaque couche avec `geom`, fonctions optionnelles pour la personnalisation.
 
-## Traitement des données matricielles avec *raster*
+--
 
-* Exemple: Modèle d'élévation numérique du Canada (CDEM)
+- L'argument `data` spécifie le jeu de données et `aes` associe des variables de ce jeu de données à des éléments du graphique.
 
-* Lire et visualiser des données matricielles
+- `data` and `aes` peuvent être spécifiés dans la fonction `ggplot` (si elles s'appliquent à toutes les couches) ou dans des `geom` individuels.
 
-* Sectionner ou combiner des jeux de données matriciels
+---
 
-* Superposer des données vectorielles et matricielles
+# Cartes détaillées avec ggplot2
 
+- `geom_sf`: crée une carte à partir d'un objet `sf`.
 
-## Traitement des données matricielles avec *raster*
+- `geom_sf_text` ou `geom_sf_label`: ajoute du texte à chaque objet géométrique sur une carte.
 
-![](images/op_rast.png)
+- `coord_sf`: définit les limites des axes et le système de coordonnées, transforme tous les objets géométriques dans ce système.
 
+---
 
-## Extraire des données matricielles à partir d'objets *sf*
+# Opérations géométriques
 
-* *r* est un *raster*, *pt* un point, *poly* un polygone.
+Trois grands types:
 
-* `extract(r, pt)`: Valeur de *r* au point.
+- des prédicats ou tests, dont la sortie est TRUE/FALSE (ex.: la géométrie A est-elle contenue dans B?);
 
-* `extract(r, poly)`: Valeurs de toutes les cellules de *r* couvertes par le polygone.
+--
 
-* `extract(r, poly, fun = ...)`: Combine les valeurs par polygone selon la fonction donnée par `fun`.
+- des mesures, qui produisent une quantité scalaire (par exemple, la longueur d'une ligne, l'aire d'un polygone, la distance entre deux géométries);
 
+--
 
-## Pour en savoir plus
+- des fonctions génératrices de géométries qui produisent des géométries en sortie basées sur l'entrée (par exemple, distance tampon autour d'un point, centroïde d'un polygone, intersection de deux lignes ou polygones).
 
-* Possibilités du package *sf* décrites au [https://r-spatial.github.io/sf/](https://r-spatial.github.io/sf/), section Articles.
+---
 
-* [Introduction to Working With Raster Data in R](http://neondataskills.org/tutorial-series/raster-data-series/) (formation développée par le National Ecological Observation Network)
+# Opérations géométriques
 
-* [Vignette du package *tmap*](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-nutshell.html)
+![](images/st_join.png)
 
-* Livre gratuit en ligne de Robin Lovelace, [*Geocomputation in R*](https://geocompr.robinlovelace.net/)
+---
 
-* [Liste détaillée](https://cran.r-project.org/web/views/Spatial.html) des packages d'analyse spatiale en R.
+# Opérations géométriques
+
+![](images/geom_ops.png)
+
+---
+
+# Opérations géométriques
+
+- Les fonctions de mesure pour l'aire de polygones (`st_area`) la longueur de lignes (`st_length`) ou la distance entre paires d'éléments géométriques (`st_distance`) fonctionnent soit avec des coordonnées géographiques (long, lat) ou projetées.
+
+--
+
+- Toutes les autres opérations géométriques dans ***sf*** sont basées sur la géométrie plane.
+
+--
+
+- Exemple de prédicat: `st_intersects(A, B)` retourne, pour chaque élément dans *A*, les indices des éléments dans *B* qui intersectent cet élément de *A*.
+
+--
+
+- `st_join (A, B)` prend un objet `sf` *A* et y ajoute les champs de données d'un second objet *B* pour chaque cas où l'élément de *A* intersecte avec un élément de *B*.
+
+---
+
+# Opérations géométriques
+
+- `st_intersection (A, B)` produit un jeu de données contenant toutes les régions où les éléments de *A* et *B* se chevauchent.
+
+--
+
+- `st_difference (A, B)` produit un jeu de données contenant la différence d'ensemble (zones couvertes par *A*, mais pas par *B*) pour chaque paires d'éléments de *A* et *B*.
+
+--
+
+- `st_union (A, B)` produit un jeu de données contenant les unions (zone couverte par *A* ou *B*) pour chaque paire d'éléments d'*A* et *B*. Lorsqu'un seul objet `sf` est fourni en entrée, `st_union` fusionne tous les éléments de cet objet en un seul.
+
+--
+
+- `st_buffer` produit de nouveaux éléments géométriques qui ajoutent un tampon d'une distance donnée autour des géométries originales.
+
+---
+
+# Données matricielles
+
+- Lire et visualiser les données matricielles.
+
+- Découper et transformer les données matricielles.
+
+- Extraire des données d'une couche matricielle à partir d'un ensemble de points.
+
+---
+
+# Données matricielles
+
+- La fonction `read_stars` charge un fichier matriciel dans R. Spécifiez `proxy = TRUE` pour éviter de charger le raster complet en mémoire.
+
+--
+
+- L'objet `stars` peut être affiché par lui-même avec `plot`, ou être ajouté à un graphique `ggplot` avec `geom_stars`.
+
+--
+
+- `filter` coupe un objet `stars` selon les valeurs spécifiées pour chaque dimension, tandis que `st_crop` le découpe dans les limites d'un objet `sf`.
+
+--
+
+- Les opérateurs arithmétiques (`+`, `-`, etc.) et de comparaison (`<`, `==`, etc.) sont appliqués à chaque pixel de l'objet `stars`.
+
+--
+
+- La fonction `extract` du package ***raster*** extrait les valeurs matricielles pour des points spécifiés par un objet `sf`.
+
+---
+
+# Cartes interactives avec mapview
+
+- `mapview(data)` où `data` est un jeu de données matriciel ou vectoriel.
+
+--
+
+- Ajouter plusieurs couches: `mapview(data1) + mapview(data2)`.
+
+--
+
+- Pour des données vectorielles, on peut spécifier la variable à afficher sur la carte avec l'argument `zcol`.
+
+---
+
+# Références additionnelles
+
+- Le blogue R-Spatial ([https://www.r-spatial.org](https://www.r-spatial.org)) contient des nouvelles et des tutoriels sur les packages R servant à l'analyse spatial. Ce site contient aussi un manuel gratuit *Spatial Data Science* (Pebesma and Bivand) qui couvre les packages ***sf*** et ***stars*** en plus de détail.
+
+- Le site web RSpatial ([https://rspatial.org/](https://rspatial.org/), à ne pas confondre avec le précédent) inclut des tutoriels pour les packages ***raster*** et ***terra*** pour travailler avec des données matricielles.
+
+- *Geocomputation with R* [https://geocompr.robinlovelace.net/](https://geocompr.robinlovelace.net/) (Lovelace, Nowosad et Muenchow) est un autre manuel complet et gratuit sur le traitement et l'analyse de données spatiales.
+
+
+
