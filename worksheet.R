@@ -216,8 +216,9 @@ cdem_500 <- ...
 
 #### Exercise 4 ####
 
-# a) Show a map of the points in the MRC of La Mitis 
-#    with an elevation between 5 and 100 m. 
+# a) Show on a map where the elevation is between 5 and 100 m 
+#    in the MRC of La Mitis. 
+
 
 
 # b) What is the highest elevation in that MRC?

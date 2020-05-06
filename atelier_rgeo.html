@@ -1993,7 +1993,7 @@ plots_01_11 &lt;- st_join(plots, mrc_01_11, left = FALSE)</code></pre>
 <h3>Exercice 3</h3>
 <p>Le fichier <em>data/tbe2016_gaspe.shp</em> contient une carte des régions défoliées par la tordeuse des bourgeons de l’épinette au Bas-St-Laurent et en Gaspésie en 2016. Le niveau de défoliation est représenté par un entier: 1 = léger, 2 = modéré et 3 = sévère.</p>
 <ol style="list-style-type: lower-alpha">
-<li><p>Comment de placettes dans ces régions sont affectées à chaque niveau de défoliation? <em>Indice</em>: La fonction <code>table</code> est utile pour compter les effectifs de chaque valeur dans une colonne.</p></li>
+<li><p>Combien de placettes dans ces régions sont affectées à chaque niveau de défoliation? <em>Indice</em>: La fonction <code>table</code> est utile pour compter les effectifs de chaque valeur dans une colonne.</p></li>
 <li><p>Produisez une carte des régions défoliées situées dans la MRC de Kamouraska, avec les limites de la MRC.</p></li>
 </ol>
 <p><a href="#sol3">Solution</a></p>
@@ -2242,7 +2242,7 @@ plot(mrc_01_11[&quot;pop2016&quot;], axes = TRUE)</code></pre>
 <div id="sol3" class="section level3">
 <h3>Exercice 3</h3>
 <ol style="list-style-type: lower-alpha">
-<li>Comment de placettes dans ces régions sont affectées à chaque niveau de défoliation?</li>
+<li>Combien de placettes dans ces régions sont affectées à chaque niveau de défoliation?</li>
 </ol>
 <pre class="r"><code>defo &lt;- st_read(&quot;data/tbe2016_gaspe.shp&quot;)</code></pre>
 <pre><code>## Reading layer `tbe2016_gaspe&#39; from data source `Z:\cours\atelier_rgeo\data\tbe2016_gaspe.shp&#39; using driver `ESRI Shapefile&#39;

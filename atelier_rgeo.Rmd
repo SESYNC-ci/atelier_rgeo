@@ -368,7 +368,7 @@ ggplot() +
 
 Le fichier *data/tbe2016_gaspe.shp* contient une carte des régions défoliées par la tordeuse des bourgeons de l'épinette au Bas-St-Laurent et en Gaspésie en 2016. Le niveau de défoliation est représenté par un entier: 1 = léger, 2 = modéré et 3 = sévère.
 
-a) Comment de placettes dans ces régions sont affectées à chaque niveau de défoliation? *Indice*: La fonction `table` est utile pour compter les effectifs de chaque valeur dans une colonne. 
+a) Combien de placettes dans ces régions sont affectées à chaque niveau de défoliation? *Indice*: La fonction `table` est utile pour compter les effectifs de chaque valeur dans une colonne. 
 
 b) Produisez une carte des régions défoliées situées dans la MRC de Kamouraska, avec les limites de la MRC.
 
@@ -632,7 +632,7 @@ ggplot(data = mrc_proj, aes(fill = reg_name)) +
 
 ### Exercice 3 {#sol3}
 
-a) Comment de placettes dans ces régions sont affectées à chaque niveau de défoliation?
+a) Combien de placettes dans ces régions sont affectées à chaque niveau de défoliation?
 
 ```{r sol3a}
 defo <- st_read("data/tbe2016_gaspe.shp")
