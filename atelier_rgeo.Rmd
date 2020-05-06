@@ -4,6 +4,8 @@ author: "Philippe Marchand, Université du Québec en Abitibi-Témiscamingue"
 date: "7 mai 2020"
 output: 
     html_document:
+        self_contained: false
+        lib_dir: libs
         theme: united
         toc: true
         toc_float: true
