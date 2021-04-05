@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include head.html %}
+    {% include dependencies.html %}
+  </head>
+  <body>
+    <div class="page-content">
+      <div class="wrapper">
+        {{ content }}
+        {% include code-help.html %}
+      </div>
+    </div>
+    {% include body.html %}
+    <footer>
+      <p>
+        <a href="https://github.com/SESYNC-ci/sesync-ci.github.io/blob/master/lesson/lesson-lifecycle.md" target="_blank">
+          <img src="https://img.shields.io/badge/lifecycle-{{ site.data.lesson.lifecycle }}-{{ site.data.lesson.badgecolor }}.svg" alt="Lifecycle status"> 
+        </a>
+      </p>
+      <p>
+        <a href="{{ site.github.repository_url }}/issues" target="_blank">
+          <i class="fas fa-exclamation-circle" aria-hidden="true"></i> report an issue
+        </a>
+      </p>
+      <p>Site maintained by
+        <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a>
+      </p>
+    </footer>
+  </body>
+</html>
