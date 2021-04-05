@@ -145,10 +145,10 @@ plot(regions["pop2016"])
 
 ### Créer un objet spatial à partir d'un *data frame*
 
-Le fichier `plots.csv` contient des données sur les placettes d'inventaire du Ministère des Forêts, de la Faune et des Parcs du Québec (MFFP), incluant le numéro d'identification, la latitude et la longitude, la date d'inventaire, le type de couvert (feuillu, mixte ou confière) ainsi que la classe de hauteur. 
+Le fichier `plots_rgeo.csv` contient des données sur les placettes d'inventaire du Ministère des Forêts, de la Faune et des Parcs du Québec (MFFP), incluant le numéro d'identification, la latitude et la longitude, la date d'inventaire, le type de couvert (feuillu, mixte ou confière) ainsi que la classe de hauteur. 
 
 ```{r load_plots}
-plots <- read.csv("data/plots.csv")
+plots <- read.csv("data/plots_rgeo.csv")
 head(plots)
 ```
 

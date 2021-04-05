@@ -46,7 +46,7 @@ plot(...)
 
 # Créer un objet spatial à partir d'un data.frame
 
-plots <- read.csv("data/plots.csv")
+plots <- read.csv("data/plots_rgeo.csv")
 
 plots <- st_as_sf(plots, ...)
 

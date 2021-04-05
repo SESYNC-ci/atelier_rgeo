@@ -61,7 +61,7 @@ plots$cover_type <- recode(plots$cover_type, F = "Deciduous", M = "Mixed",
 
 plots <- na.omit(plots)
 
-write_csv(plots, "data/plots.csv")
+write_csv(plots, "data/plots_rgeo.csv")
 
 
 #### Spruce budworm ####

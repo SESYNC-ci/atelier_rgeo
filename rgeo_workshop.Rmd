@@ -145,10 +145,10 @@ plot(regions["pop2016"])
 
 ### Create a spatial object from a data frame
 
-The `plots.csv` file contains data from forest inventory plots of the Québec Department of Forests, Wildlife and Parks (MFFP), including the plot ID, latitude and longitude, survey date, cover type (deciduous, mixed or coniferous) and canopy height class.  
+The `plots_rgeo.csv` file contains data from forest inventory plots of the Québec Department of Forests, Wildlife and Parks (MFFP), including the plot ID, latitude and longitude, survey date, cover type (deciduous, mixed or coniferous) and canopy height class.  
 
 ```{r load_plots}
-plots <- read.csv("data/plots.csv")
+plots <- read.csv("data/plots_rgeo.csv")
 head(plots)
 ```
 

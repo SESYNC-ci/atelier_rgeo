@@ -28,6 +28,15 @@
 <link href="libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="libs/highlightjs-9.12.0/highlight.js"></script>
 
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
   pre:not([class]) {
@@ -72,6 +81,7 @@ h6 {
   text-align: left;
 }
 </style>
+
 
 
 
@@ -312,12 +322,12 @@ div.tocify {
 <pre class="r"><code>library(sf)
 
 mrc &lt;- st_read(&quot;data/mrc.shp&quot;)</code></pre>
-<pre><code>## Reading layer `mrc&#39; from data source `Z:\cours\atelier_rgeo\data\mrc.shp&#39; using driver `ESRI Shapefile&#39;
+<pre><code>## Reading layer `mrc&#39; from data source `/research-home/rblake/atelier_rgeo/data/mrc.shp&#39; using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 104 features and 4 fields
-## geometry type:  MULTIPOLYGON
-## dimension:      XY
-## bbox:           xmin: -79.7625 ymin: 44.99136 xmax: -56.93495 ymax: 62.58217
-## CRS:            4269</code></pre>
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -79.7625 ymin: 44.99136 xmax: -56.93495 ymax: 62.58217
+## CRS:           4269</code></pre>
 <p>The output text indicates the main properties of the loaded dataset, including the geometric type (MULTIPOLYGON), the spatial extent of the data (<em>bbox</em>) and the coordinate reference system (CRS) in use.</p>
 <p>The bounding box and a detailed description of the CRS can be accessed separately using the <code>st_bbox</code> and <code>st_crs</code> functions:</p>
 <pre class="r"><code>st_bbox(mrc)</code></pre>
@@ -339,10 +349,10 @@ mrc &lt;- st_read(&quot;data/mrc.shp&quot;)</code></pre>
 <pre><code>## [1] &quot;sf&quot;         &quot;data.frame&quot;</code></pre>
 <pre class="r"><code>head(mrc)</code></pre>
 <pre><code>## Simple feature collection with 6 features and 4 fields
-## geometry type:  MULTIPOLYGON
-## dimension:      XY
-## bbox:           xmin: -79.51776 ymin: 45.44911 xmax: -63.31941 ymax: 62.58217
-## CRS:            4269
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -79.51776 ymin: 45.44911 xmax: -63.31941 ymax: 62.58217
+## CRS:           4269
 ##                           mrc_name reg_id              reg_name pop2016
 ## 1                          Abitibi     08 Abitibi-Temiscamingue   24707
 ## 2                    Abitibi-Ouest     08 Abitibi-Temiscamingue   20582
@@ -374,19 +384,19 @@ mrc &lt;- st_read(&quot;data/mrc.shp&quot;)</code></pre>
 <pre class="r"><code># Select the 5th row
 mrc[5, ]</code></pre>
 <pre><code>## Simple feature collection with 1 feature and 4 fields
-## geometry type:  MULTIPOLYGON
-## dimension:      XY
-## bbox:           xmin: -76.14932 ymin: 45.95376 xmax: -74.34359 ymax: 47.76333
-## CRS:            4269
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -76.14932 ymin: 45.95376 xmax: -74.34359 ymax: 47.76333
+## CRS:           4269
 ##          mrc_name reg_id    reg_name pop2016                       geometry
 ## 5 Antoine-Labelle     15 Laurentides   35410 MULTIPOLYGON (((-75.52133 4...</code></pre>
 <pre class="r"><code># Select the MRC name and population columns for MRCs with a population over 200,000
 mrc[mrc$pop2016 &gt; 200000, c(&quot;mrc_name&quot;, &quot;pop2016&quot;)] </code></pre>
 <pre><code>## Simple feature collection with 5 features and 2 fields
-## geometry type:  MULTIPOLYGON
-## dimension:      XY
-## bbox:           xmin: -75.90834 ymin: 45.37075 xmax: -71.13162 ymax: 46.98186
-## CRS:            4269
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -75.90834 ymin: 45.37075 xmax: -71.13162 ymax: 46.98186
+## CRS:           4269
 ##     mrc_name pop2016                       geometry
 ## 23  Gatineau  278198 MULTIPOLYGON (((-75.89532 4...
 ## 47     Laval  425225 MULTIPOLYGON (((-73.74488 4...
@@ -408,10 +418,10 @@ mrc[mrc$pop2016 &gt; 200000, c(&quot;mrc_name&quot;, &quot;pop2016&quot;)] </cod
 filter(mrc, pop2016 &gt; 200000) %&gt;%
     select(mrc_name, pop2016)</code></pre>
 <pre><code>## Simple feature collection with 5 features and 2 fields
-## geometry type:  MULTIPOLYGON
-## dimension:      XY
-## bbox:           xmin: -75.90834 ymin: 45.37075 xmax: -71.13162 ymax: 46.98186
-## CRS:            4269
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -75.90834 ymin: 45.37075 xmax: -71.13162 ymax: 46.98186
+## CRS:           4269
 ##    mrc_name pop2016                       geometry
 ## 1  Gatineau  278198 MULTIPOLYGON (((-75.89532 4...
 ## 2     Laval  425225 MULTIPOLYGON (((-73.74488 4...
@@ -420,29 +430,46 @@ filter(mrc, pop2016 &gt; 200000) %&gt;%
 ## 5    Quebec  572755 MULTIPOLYGON (((-71.55293 4...</code></pre>
 <p>When performing a grouped summary, the individual features are also aggregated in a single feature by group. For example, let us aggregate the MRCs and their population by region.</p>
 <pre class="r"><code>regions &lt;- group_by(mrc, reg_name) %&gt;%
-    summarize(pop2016 = sum(pop2016))
-head(regions)</code></pre>
+    summarize(pop2016 = sum(pop2016))</code></pre>
+<pre><code>## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar
+## although coordinates are longitude/latitude, st_union assumes that they are planar</code></pre>
+<pre class="r"><code>head(regions)</code></pre>
 <pre><code>## Simple feature collection with 6 features and 2 fields
-## geometry type:  GEOMETRY
-## dimension:      XY
-## bbox:           xmin: -79.57933 ymin: 45.58943 xmax: -56.93495 ymax: 55.00006
-## CRS:            4269
+## Geometry type: GEOMETRY
+## Dimension:     XY
+## Bounding box:  xmin: -79.57933 ymin: 45.58943 xmax: -56.93495 ymax: 55.00006
+## CRS:           4269
 ## # A tibble: 6 x 3
 ##   reg_name         pop2016                                              geometry
 ##   &lt;chr&gt;              &lt;dbl&gt;                                        &lt;GEOMETRY [°]&gt;
-## 1 Abitibi-Temisca~  147282 POLYGON ((-77.93147 47.27012, -77.93155 47.26624, -7~
-## 2 Bas-Saint-Laure~  197806 POLYGON ((-68.38319 47.88014, -68.38314 47.83307, -6~
-## 3 Capitale-Nation~  733898 POLYGON ((-70.69151 47.03311, -70.69453 47.02324, -7~
-## 4 Centre-du-Quebec  243354 POLYGON ((-72.09283 45.79699, -72.11938 45.77338, -7~
-## 5 Chaudiere-Appal~  421993 POLYGON ((-70.2784 46.05675, -70.2784 46.05608, -70.~
-## 6 Cote-Nord          92712 MULTIPOLYGON (((-66.25978 55.00001, -66.25001 55, -6~</code></pre>
+## 1 Abitibi-Temisca…  147282 POLYGON ((-77.93147 47.27012, -77.93155 47.26624, -7…
+## 2 Bas-Saint-Laure…  197806 POLYGON ((-68.38319 47.88014, -68.38314 47.83307, -6…
+## 3 Capitale-Nation…  733898 POLYGON ((-70.69151 47.03311, -70.69453 47.02324, -7…
+## 4 Centre-du-Quebec  243354 POLYGON ((-72.09283 45.79699, -72.11938 45.77338, -7…
+## 5 Chaudiere-Appal…  421993 POLYGON ((-70.2784 46.05675, -70.2784 46.05608, -70.…
+## 6 Cote-Nord          92712 MULTIPOLYGON (((-66.25978 55.00001, -66.25001 55, -6…</code></pre>
 <pre class="r"><code>plot(regions[&quot;pop2016&quot;])</code></pre>
 <p><img src="rgeo_workshop_files/figure-html/sf_groupby-1.png" width="672" /></p>
 </div>
 <div id="create-a-spatial-object-from-a-data-frame" class="section level3">
 <h3>Create a spatial object from a data frame</h3>
-<p>The <code>plots.csv</code> file contains data from forest inventory plots of the Québec Department of Forests, Wildlife and Parks (MFFP), including the plot ID, latitude and longitude, survey date, cover type (deciduous, mixed or coniferous) and canopy height class.</p>
-<pre class="r"><code>plots &lt;- read.csv(&quot;data/plots.csv&quot;)
+<p>The <code>plots_rgeo.csv</code> file contains data from forest inventory plots of the Québec Department of Forests, Wildlife and Parks (MFFP), including the plot ID, latitude and longitude, survey date, cover type (deciduous, mixed or coniferous) and canopy height class.</p>
+<pre class="r"><code>plots &lt;- read.csv(&quot;data/plots_rgeo.csv&quot;)
 head(plots)</code></pre>
 <pre><code>##    plot_id      lat      long  surv_date cover_type height_cls
 ## 1 99100101 45.35944 -72.89580 2012-11-12  Deciduous    17-22 m
@@ -646,7 +673,7 @@ ggplot() +
 <pre class="r"><code>areas &lt;- st_area(mrc)
 head(areas)</code></pre>
 <pre><code>## Units: [m^2]
-## [1]   7940855145   3630423258    582240572 513075556998  16304017180
+## [1]   7940855145   3630423258    582240572 513075556996  16304017180
 ## [6]   1335860444</code></pre>
 <p>Note that the answer is in square metres, even though <code>mrc</code> uses geographical coordinates. Three measure functions: <code>st_area</code>, <code>st_length</code> and <code>st_distance</code> implement geodetic measures which take into account the curvature of the Earth. This is not the case for other operations, as we will see below.</p>
 <p>To make it easier to read the results, we can convert them to a different unit.</p>
@@ -677,10 +704,10 @@ head(areas)</code></pre>
 ## although coordinates are longitude/latitude, st_intersects assumes that they are planar</code></pre>
 <pre class="r"><code>head(plots_mrc)</code></pre>
 <pre><code>## Simple feature collection with 6 features and 8 fields
-## geometry type:  POINT
-## dimension:      XY
-## bbox:           xmin: -72.8958 ymin: 45.35944 xmax: -71.1618 ymax: 45.49196
-## CRS:            4269
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -72.8958 ymin: 45.35944 xmax: -71.1618 ymax: 45.49196
+## CRS:           4269
 ##    plot_id  surv_date cover_type height_cls               mrc_name reg_id
 ## 1 99100101 2012-11-12  Deciduous    17-22 m               Rouville     16
 ## 2 99100102 2012-09-08  Deciduous      &gt;22 m               Rouville     16
@@ -702,10 +729,10 @@ plots_01_11 &lt;- st_join(plots, mrc_01_11)</code></pre>
 ## although coordinates are longitude/latitude, st_intersects assumes that they are planar</code></pre>
 <pre class="r"><code>head(plots_01_11)</code></pre>
 <pre><code>## Simple feature collection with 6 features and 8 fields
-## geometry type:  POINT
-## dimension:      XY
-## bbox:           xmin: -72.8958 ymin: 45.35944 xmax: -71.1618 ymax: 45.49196
-## CRS:            4269
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -72.8958 ymin: 45.35944 xmax: -71.1618 ymax: 45.49196
+## CRS:           4269
 ##    plot_id  surv_date cover_type height_cls mrc_name reg_id reg_name pop2016
 ## 1 99100101 2012-11-12  Deciduous    17-22 m     &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;      NA
 ## 2 99100102 2012-09-08  Deciduous      &gt;22 m     &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;      NA
@@ -804,7 +831,7 @@ cdem</code></pre>
 ##  3rd Qu.: 328.8    
 ##  Max.   :1179.4    
 ## dimension(s):
-##   from   to   offset        delta                       refsys point values    
+##   from   to   offset        delta                       refsys point values x/y
 ## x    1 4801 -70.0001  0.000833333 GEOGCS[&quot;NAD83&quot;,DATUM[&quot;Nor... FALSE   NULL [x]
 ## y    1 1201  49.0001 -0.000833333 GEOGCS[&quot;NAD83&quot;,DATUM[&quot;Nor... FALSE   NULL [y]</code></pre>
 <p>The CDEM data has one <em>attribute</em> (variable), the elevation, which ranges from 2 to 1179 m for this particular section. The <em>dimensions</em> table includes a row for each array dimension, here <em>x</em> and <em>y</em>. The <em>from</em> and <em>to</em> columns indicate the range of indices in each dimension (4801 cells in <em>x</em> by 1201 cells in <em>y</em>), the <em>offset</em> column contains the coordinates of the top-left corner of the raster (70 degrees West, 49 degrees North), the <em>delta</em> column indicates the size of each raster cell (1/1200 <span class="math inline">\(\approx\)</span> 0.000833 degree), and the <em>refsys</em> column describes the coordinate reference system.</p>
@@ -862,6 +889,7 @@ plot(cdem_part)</code></pre>
 <pre class="r"><code>mitis &lt;- filter(mrc_01_11, mrc_name == &quot;La Mitis&quot;)
 mitis &lt;- st_transform(mitis, st_crs(cdem))
 cdem_mitis &lt;- st_crop(cdem, mitis)</code></pre>
+<pre><code>## although coordinates are longitude/latitude, st_union assumes that they are planar</code></pre>
 <pre><code>## although coordinates are longitude/latitude, st_intersects assumes that they are planar</code></pre>
 <pre class="r"><code>plot(cdem_mitis)</code></pre>
 <p><img src="rgeo_workshop_files/figure-html/st_crop-1.png" width="672" /></p>
@@ -895,10 +923,10 @@ plots_01_11$elev &lt;- plots_elev # save in a new column of the sf object
 
 head(plots_01_11)</code></pre>
 <pre><code>## Simple feature collection with 6 features and 9 fields
-## geometry type:  POINT
-## dimension:      XY
-## bbox:           xmin: -67.02499 ymin: 48.36367 xmax: -64.41216 ymax: 48.52901
-## CRS:            4269
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -67.02499 ymin: 48.36367 xmax: -64.41216 ymax: 48.52901
+## CRS:           4269
 ##      plot_id  surv_date cover_type height_cls        mrc_name reg_id
 ## 17 119600101 2016-06-16 Coniferous    17-22 m     Bonaventure     11
 ## 18 119600102 2016-06-16 Coniferous    17-22 m     Bonaventure     11
@@ -936,7 +964,7 @@ head(plots_01_11)</code></pre>
 mapview(cdem) +
     mapview(plots_01_11, zcol = &quot;cover_type&quot;)</code></pre>
 <div class="figure">
-<img src="images/mapview_example.png" alt="Exemple mapview" />
+<img src="images/mapview_example.png" alt="" />
 <p class="caption">Exemple mapview</p>
 </div>
 <hr />
@@ -985,12 +1013,12 @@ plot(mrc_01_11[&quot;pop2016&quot;], axes = TRUE)</code></pre>
 <li>How many of the forest inventory plots in these regions are affected at each defoliation level?</li>
 </ol>
 <pre class="r"><code>defo &lt;- st_read(&quot;data/tbe2016_gaspe.shp&quot;)</code></pre>
-<pre><code>## Reading layer `tbe2016_gaspe&#39; from data source `Z:\cours\atelier_rgeo\data\tbe2016_gaspe.shp&#39; using driver `ESRI Shapefile&#39;
+<pre><code>## Reading layer `tbe2016_gaspe&#39; from data source `/research-home/rblake/atelier_rgeo/data/tbe2016_gaspe.shp&#39; using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 3928 features and 2 fields
-## geometry type:  POLYGON
-## dimension:      XY
-## bbox:           xmin: -69.88925 ymin: 47.38829 xmax: -64.66188 ymax: 49.25522
-## CRS:            4269</code></pre>
+## Geometry type: POLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -69.88925 ymin: 47.38829 xmax: -64.66188 ymax: 49.25522
+## CRS:           4269</code></pre>
 <pre class="r"><code>plots_defo &lt;- st_join(plots_01_11, defo)</code></pre>
 <pre><code>## although coordinates are longitude/latitude, st_intersects assumes that they are planar
 ## although coordinates are longitude/latitude, st_intersects assumes that they are planar</code></pre>
@@ -1019,6 +1047,7 @@ defo_kam &lt;- st_join(defo, mrc_kam, left = FALSE)</code></pre>
 mitis &lt;- st_transform(mitis, st_crs(cdem))
 
 cdem_mitis &lt;- st_crop(cdem, mitis)</code></pre>
+<pre><code>## although coordinates are longitude/latitude, st_union assumes that they are planar</code></pre>
 <pre><code>## although coordinates are longitude/latitude, st_intersects assumes that they are planar</code></pre>
 <pre class="r"><code>plot(cdem_mitis &gt;= 5 &amp; cdem_mitis &lt;= 100)</code></pre>
 <p><img src="rgeo_workshop_files/figure-html/sol4a-1.png" width="672" /></p>
@@ -1043,7 +1072,7 @@ max(cdem_mitis_vals, na.rm = TRUE)</code></pre>
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -1082,7 +1111,7 @@ $(document).ready(function ()  {
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
       },
       ignoreSelector: ".toc-ignore",
       scrollTo: 0
