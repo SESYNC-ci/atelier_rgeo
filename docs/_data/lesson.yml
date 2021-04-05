@@ -1,0 +1,23 @@
+title: Introduction to geospatial data analysis in R
+subtitle: 
+handouts:
+  - worksheet.R
+  - data/cdem_022BC_3s.tif
+  - data/mrc.dbf
+  - data/mrc.prj
+  - data/mrc.shp
+  - data/mrc.shx
+  - data/plots_rgeo.csv
+  - data/tbe2016_gaspe.dbf
+  - data/tbe2016_gaspe.prj
+  - data/tbe2016_gaspe.shp
+  - data/tbe2016_gaspe.shx
+tag: 
+lesson: 1
+instructor: 
+lifecycle: beta # status for lifecycle badge
+badgecolor: blue # color for lifecycle badge
+warning: true # whether to include note about lifecycle status
+authors: 
+  - Philippe Marchand
+sorter:
