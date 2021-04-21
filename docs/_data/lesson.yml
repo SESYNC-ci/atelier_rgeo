@@ -14,10 +14,11 @@ handouts:
   - data/tbe2016_gaspe.shx
 tag: 
 lesson: 1
-instructor: 
+instructor: Quentin Read
 lifecycle: beta # status for lifecycle badge
 badgecolor: blue # color for lifecycle badge
 warning: true # whether to include note about lifecycle status
 authors: 
   - Philippe Marchand
 sorter:
+  - rgeo_workshop
