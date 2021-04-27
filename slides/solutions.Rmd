@@ -1,0 +1,81 @@
+---
+---
+
+## Solutions {#sol}
+
+
+### Exercise 1 {#sol1}
+
+Select the MRCs in the Bas-St-Laurent (*reg_id*: 01) and Gaspesie (*reg_id*: 11) regions, then display their 2016 population on a map.
+
+```{r sol1}
+mrc_01_11 <- mrc[mrc$reg_id %in% c("01", "11"), ]
+plot(mrc_01_11["pop2016"], axes = TRUE)
+```
+
+[Return to text](#retour1)
+
+===
+
+### Exercise 2 {#sol2}
+
+Create a map of the MRCs with different fill colors for each region.
+
+```{r sol2}
+ggplot(data = mrc_proj, aes(fill = reg_name)) +
+    geom_sf()
+```
+
+[Return to text](#retour2)
+
+===
+
+### Exercise 3 {#sol3}
+
+a) How many of the forest inventory plots in these regions are affected at each defoliation level?
+
+```{r sol3a}
+defo <- st_read("data/tbe2016_gaspe.shp")
+plots_defo <- st_join(plots_01_11, defo)
+table(plots_defo$level)
+```
+
+===
+
+b) Plot the defoliated areas located in the MRC of Kamouraska by severity level, also displaying the MRC border.
+
+```{r sol3b}
+mrc_kam <- filter(mrc_01_11, mrc_name == "Kamouraska")
+defo_kam <- st_join(defo, mrc_kam, left = FALSE)
+
+ggplot() +
+    geom_sf(data = mrc_kam) +
+    geom_sf(data = defo_kam, color = NA, aes(fill = level))
+```
+
+[Return to text](#retour3)
+
+===
+
+### Exercise 4 {#sol4}
+
+a) Show on a map where the elevation is between 5 and 100 m in the MRC of La Mitis. 
+
+```{r sol4a}
+mitis <- filter(mrc_01_11, mrc_name == "La Mitis")
+mitis <- st_transform(mitis, st_crs(cdem))
+
+cdem_mitis <- st_crop(cdem, mitis)
+plot(cdem_mitis >= 5 & cdem_mitis <= 100)
+```
+
+===
+
+b) What is the highest elevation in that MRC?
+
+```{r sol4b}
+cdem_mitis_vals <- cdem_mitis[[1]]
+max(cdem_mitis_vals, na.rm = TRUE)
+```
+
+[Return to text](#retour4)

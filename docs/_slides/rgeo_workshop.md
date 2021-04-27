@@ -15,7 +15,11 @@ output:
 
 ---
 
-This workshop provides an overview of tools available in R for the analysis of geolocated data. This type of data is becoming increasingly common in various fields (e.g. aerial photos, satellite imagery, census data, geolocated posts on social networks, etc.). There are two broad categories of geospatial data: 
+This workshop provides an overview of tools available in R for the analysis of geolocated data. This type of data is becoming increasingly common in various fields (e.g. aerial photos, satellite imagery, census data, geolocated posts on social networks, etc.). 
+
+===
+
+There are two broad categories of geospatial data: 
 
 * raster data represent variables defined at every point of a grid covering the full extent of the data (as in satellite images);
 * vector data associate variables (sometimes also called attributes) to discrete geometrical objects located in space (such as the position of cities and highways on a road map).
@@ -28,21 +32,29 @@ At first, using programming commands to process geographical data can seem less 
 * It is easy for other researchers to reproduce the methods if they have access to the same programming language.
 * When using R specifically, the spatial data can be extracted and merged with other datasets for statistical analyses in a single programming environment.
 
+===
+
 ## Objectives
 
 * Become familiar with R packages for processing and simple visualization of vector and raster data (the ***sf*** and ***stars*** packages, respectively).
 * Perform common data transformation operations using functions from those packages.
 * Create more complex static maps (with ***ggplot2***) and interactive maps (with ***mapview***).
 
+===
+
 ### Note on packages
 
 * The set of packages available for spatial analysis in R has evolved rapidly. A few years ago, the ***sp*** and ***raster*** packages were the main tools for vector and raster data processing, respectively. ***sf*** and ***stars*** are part of a recent initiative to overhaul R spatial tools ([https://www.r-spatial.org/](https://www.r-spatial.org/)). 
+
+===
 
 * The ***sf*** package represents spatial data frames with a standard format based on open-source geodatabases, and integrates well with popular R packages for data manipulation and visualization (such as ***dplyr*** and ***ggplot2***). 
 
 * The ***stars*** package is also compatible with ***ggplot2*** and provides good support for raster "cubes" with non-spatial dimensions such as time.
 
 * The ***raster*** package and its successor ***terra*** (released in 2020) have some features not present in ***stars*** and perform some operations faster. Therefore it can be useful to learn them if your workflow includes complex operations on large rasters; see the documentation at [https://rspatial.org/](https://rspatial.org/) for more details.
+
+===
 
 ## Contents
 
@@ -56,11 +68,16 @@ At first, using programming commands to process geographical data can seem less 
 * [Data sources](#data)
 * [Exercise solutions](#sol)
 
----
+===
 
 ## Explore a vector dataset {#vect}
 
-All datasets used in this workshop can be found in the *data* folder. The *mrc* dataset contains information on Québec regional county municipalities (MRCs) in a *ESRI shapefile* format. Note that a single shapefile dataset is spread across multiple files, which share a name but differ in their file extension (*mrc.dbf*, *mrc.prj*, *mrc.shp* and *mrc.shx*).
+All datasets used in this workshop can be found in the *data* folder. The *mrc* dataset contains information on Québec regional county municipalities (MRCs) in a *ESRI shapefile* format. 
+
+Note that a single shapefile dataset is spread across multiple files, which share a name but differ in their file extension (*mrc.dbf*, *mrc.prj*, *mrc.shp* and *mrc.shx*).
+{:.notes}
+
+===
 
 To load this dataset in R, we call the `st_read` function from ***sf*** (all ***sf*** package functions start with the prefix `st_`, standing for spatiotemporal) and provide the path to the *.shp* file.
 
@@ -260,12 +277,16 @@ CRS:           4269
 Note that the column containing the spatial information (*geometry*) is always retained, even if not explicitly selected. To discard that column and convert the `sf` object to a regular (non-spatial) data frame, you can use the function `st_drop_geometry`.
 {:.notes}
 
+===
+
 ### Exercise 1 {#retour1}
 
 Select the MRCs in the Bas-St-Laurent (*reg_id*: 01) and Gaspesie (*reg_id*: 11) regions, then display their 2016 population on a map.  
 *Hint*: The operator `%in%` can check if a variable has one value within a set, for example `x %in% c(1, 3)` returns TRUE if *x* is equal to 1 or 3.
 
 [Solution](#sol1)
+
+===
 
 ### Integration with the dplyr package
 
@@ -365,6 +386,8 @@ CRS:           4269
 ![ ]({% include asset.html path="images/rgeo_workshop/sf_groupby-1.png" %})
 {:.captioned}
 
+===
+
 ### Create a spatial object from a data frame
 
 The `plots_rgeo.csv` file contains data from forest inventory plots of the Québec Department of Forests, Wildlife and Parks (MFFP), including the plot ID, latitude and longitude, survey date, cover type (deciduous, mixed or coniferous) and canopy height class.  
@@ -397,12 +420,16 @@ We can convert this data to an `sf` object with `st_as_sf`. The `coords` argumen
 
 
 ~~~r
-> plots <- st_as_sf(plots, coords = c("long", "lat"), crs = st_crs(mrc))
+> plots <- st_as_sf(plots, 
++                   coords = c("long", "lat"), 
++                   crs = st_crs(mrc))
 > plot(plots["geometry"])
 ~~~
 {:title="Console" .input}
 ![ ]({% include asset.html path="images/rgeo_workshop/df_to_sf-1.png" %})
 {:.captioned}
+
+===
 
 ### Review
 
@@ -412,11 +439,13 @@ We can convert this data to an `sf` object with `st_as_sf`. The `coords` argumen
 * All basic `data.frame` operations, as well as ***dplyr*** package operations, also apply to `sf` objects.
 * The `plot` function applied to an `sf` object displays one or many data fields on a map.
 
----
+===
 
 ## Coordinate reference systems and transformations {#crs}
 
 Until now, we worked with data using a geographic coordinate system, with positions described as degrees of longitude and latitude. Those coordinates are based on a model that approximates the irregular surface of the Earth's mean sea level (the geoid) as an ellipsoid (a slightly flattened sphere). That model is specified as a *datum* in the CRS description. The `mrc` shapefile uses the NAD83 (North American) datum, whereas many world maps are based on the WGS84 datum.
+
+===
 
 
 
@@ -448,7 +477,15 @@ A projection converts geographical coordinates in cartesian or rectangular (X, Y
 For example, the images below show how identical circular areas appear at different points of the Earth under a Mercator projection (which preserves shapes) and a Lambert equal-area projection (which preserves areas).
 {:.notes}
 
-![Mercator projection](images/Mercator_distortion.png) ![Lambert equal-area projection](images/Lambert_distortion.png)
+![]({% include asset.html path="images/Mercator_distortion.png" %}){:width="50%" style="border: none; box-shadow: none;"}  
+*Mercator projection preserves shapes*
+{:.captioned}
+
+===
+
+![]({% include asset.html path="images/Lambert_distortion.png" %}){:width="50%" style="border: none; box-shadow: none;"}  
+*Lambert equal-area projection preserves areas*
+{:.captioned}
 
 ===
 
@@ -515,7 +552,9 @@ To create a map with latitude and longitude lines superposed on projected data, 
 
 
 ~~~r
-> plot(mrc_proj["geometry"], axes = TRUE, graticule = st_crs(mrc))
+> plot(mrc_proj["geometry"], 
++      axes = TRUE, 
++      graticule = st_crs(mrc))
 ~~~
 {:title="Console" .input}
 ![ ]({% include asset.html path="images/rgeo_workshop/plot_graticule-1.png" %})
@@ -524,13 +563,15 @@ To create a map with latitude and longitude lines superposed on projected data, 
 It is important to always use `st_transform` to convert datasets between different coordinate systems. A common error consists in modifying the coordinate system of a dataset (for example, with `st_crs`) without transforming the data themselves.
 {:.notes}
 
+===
+
 ### Review
 
 * Geographic coordinate systems are based on a *datum* (model of the Earth's shape) and describe the position in terms of spherical coordinates (longitude, latitude) measured in degrees.
 * Projected coordinate systems convert spherical coordinates into rectangular coordinates (*x*, *y*) measured in a unit of length such as metres.
 * `st_crs` returns the coordinate system of an `sf` object; `st_transform` converts the data from one coordinate system to another.
 
----
+===
 
 ## Customize maps with ggplot2 {#geomsf}
 
@@ -581,7 +622,10 @@ When plotting a vector dataset from an `sf` object, we use the `geom_sf` layer t
 
 ===
 
-To add multiple spatial layers to the same map, we simply add more `geom_sf` layers, which can be based on different datasets (specifying the `data` argument in each `geom`). In the code below, we add a point layer for the forest inventory plots, assigning the color aesthetic to cover type. We also use `theme_set(theme_bw())` to change from the default grey theme to the black and white theme in all future plots.
+To add multiple spatial layers to the same map, we simply add more `geom_sf` layers, which can be based on different datasets (specifying the `data` argument in each `geom`). 
+
+In the code below, we add a point layer for the forest inventory plots, assigning the color aesthetic to cover type. We also use `theme_set(theme_bw())` to change from the default grey theme to the black and white theme in all future plots.
+{:.notes}
 
 
 
@@ -680,6 +724,8 @@ In this case, ***ggplot2*** automatically transforms all layers to the same CRS 
 
 In addition, `coord_sf` can be used to set coordinate axis limits and zoom in on a portion of the map.
 
+===
+
 
 
 ~~~r
@@ -702,30 +748,42 @@ give correct results for longitude/latitude data
 This last example introduced a new geom `geom_sf_label`, which adds a text label to each feature based on a value defined by the `label` aesthetic. The geom `geom_sf_text` works the same way, but does not draw a white box around the text label. 
 {:.notes}
 
+===
+
 ### Exercise 2 {#retour2}
 
 Create a map of the MRCs with different fill colors for each region.
 
 [Solution](#sol2)
 
+===
 
 ### Review
 
 * A ***ggplot2*** graph starts with a call to the `ggplot()` function, followed by specific `geom` defining each graph layer, followed by optional customization functions. 
 * The `data` argument specifies the dataset to plot and the `aes` function associates variables in that dataset to graphical elements. These can be defined in the `ggplot` function (if they apply to all layers) or in specific `geom` layers. 
 * The `geom_sf` layer plots an `sf` object on a map. 
+
+===
+
 * The `geom_sf_text` or `geom_sf_label` layers can be used to add textual data to each spatial feature on a map. 
 * The `coord_sf` function defines axis limits and the CRS to use, transforming all spatial features to that CRS. By default, the CRS of the first plotted spatial dataset is used.
+
+===
 
 ### Other mapping packages
 
 The ***tmap*** package (see [this tutorial](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html)) is another option for producing maps in R. It was developed before ***ggplot2*** supported `sf` objects and functions with a similar layering logic. 
 
----
+===
 
 ## Geometric operations on vector data {#vectop}
 
-The ***sf*** package includes a number of geometric operations for vector data, which are similar to those found in geodatabases or GIS software. These operations can be grouped into three classes:
+The ***sf*** package includes a number of geometric operations for vector data, which are similar to those found in geodatabases or GIS software.
+
+===
+
+These operations can be grouped into three classes:
 
 * predicates, or tests which output TRUE or FALSE (e.g. is geometry A inside B?);
 * measures, which produce a scalar quantity (e.g. length of a line, area of a polygon, distance between two geometries);
@@ -952,6 +1010,8 @@ although coordinates are longitude/latitude, st_intersects assumes that they are
 ![ ]({% include asset.html path="images/rgeo_workshop/st_join_inner-1.png" %})
 {:.captioned}
 
+===
+
 ### Exercise 3 {#retour3}
 
 The shapefile *data/tbe2016_gaspe.shp* contains a map of areas defoliated by the spruce budworm in the Bas-St-Laurent and Gaspesie regions in 2016. The defoliation level is represented by an integer: 1 = Light, 2 = Moderate and 3 = Severe.
@@ -964,7 +1024,10 @@ b) Plot the defoliated areas located in the MRC of Kamouraska, along with the MR
 
 ===
 
-Finally, we consider a few geometry-generating functions. The `st_buffer` function creates a buffer at a set distance from each geometry in an object. For example, we can define a 5 km radius around each point in `plots_01_11`. This function does not work with geographical coordinates (longitude and latitude), so we first project the plots in EPSG 6622. The buffer distance is set in the units of the CRS, in this case metres.
+Finally, we consider a few geometry-generating functions. The `st_buffer` function creates a buffer at a set distance from each geometry in an object. For example, we can define a 5 km radius around each point in `plots_01_11`. 
+
+This function does not work with geographical coordinates (longitude and latitude), so we first project the plots in EPSG 6622. The buffer distance is set in the units of the CRS, in this case metres.
+{:.notes}
 
 
 
@@ -1003,6 +1066,7 @@ If the original feature is a polygon, a negative buffer distance creates a buffe
 Next, we will see three functions based on set operations. If *A* and *B* are geometric features, their union is the area covered by A or B, their intersection is the area covered by both A and B, and the difference (A - B) is the area covered by A, but not B. In `sf`, these operations are implemented by `st_union`, `st_intersection` and `st_difference`. 
 
 If they are applied to two `sf` objects (each of them containing multiple features in a column), then the function calculates the union, intersection or difference between all possible pairs of one feature from A and one feature from B. When applied to a single `sf` object, the `st_union` function merges all features in that object. 
+{:.notes}
 
 ===
 
@@ -1050,18 +1114,23 @@ geometries
 Note that `st_difference` copies the data fields from the original datasets (here, only from `mrc_01_11_proj`, since `buffer_union` has no associated data). The warning ("attribute variables are assumed to be spatially constant") reminds us that those variables might not match the new geometries. For example, the *pop2016* variable in `mrc_edge` refers to the original MRC, not the portion extracted by `st_difference`.
 {:.notes}
 
+===
+
 ### Review
 
 * The ***sf*** package includes *measure* functions for the area of polygons (`st_area`), the length of a line (`st_length`) or the distance between pairs of geometric features (`st_distance`). Those functions work with either geographic (long, lat) or projected coordinate systems.
 * All other geometric operations in ***sf*** are based on planar geometry. They treat longitude and latitude as if they were perpendicular axes (*x*, *y*).
 * `st_intersects(A, B)` is an example of a spatial *predicate*: for each element in *A*, the function returns the indices of elements with *B* that intersect with it.
+
+===
+
 * `st_join(A, B)` takes an `sf` object *A* and appends the data fields from a second object *B* for each case where the feature in *A* intersects with a feature in *B*. Contrary to `st_intersection` below, the geometric features themselves do not change; the result retains the features from *A*.
 * `st_intersection(A, B)` produces a dataset containing all regions where features in *A* and *B* overlap.
 * `st_difference(A, B)` produces a dataset containing the set differences (portion of *A* not in *B*) for each pair of features in *A* and *B*.
 * `st_union(A, B)` produces a dataset containing the unions (area covered by either *A* or *B*) for each pair of features in *A* and *B*. When given a single `sf` object as input, `st_union` merges all features from that object within a single one.
 * `st_buffer` produces new geometric features that buffer the input features by a given distance.
 
----
+===
 
 ## Raster datasets {#rast}
 
@@ -1075,7 +1144,10 @@ The base resolution of the CDEM is 1/4800th of a degree and data are available i
 
 ===
 
-We first load the CDEM file, which is in the GeoTIFF raster format, with the `read_stars` function of the ***stars*** package (the name is an acronym for **s**patio**t**emporal **ar**ray**s**). This function associates the dataset to a `stars` object. Typing the object's name at the command line shows a summary of the data and metadata.
+We first load the CDEM file, which is in the GeoTIFF raster format, with the `read_stars` function of the ***stars*** package (the name is an acronym for **s**patio**t**emporal **ar**ray**s**). 
+
+This function associates the dataset to a `stars` object. Typing the object's name at the command line shows a summary of the data and metadata.
+{:.notes}
 
 
 
@@ -1178,6 +1250,7 @@ We can extract the elevation values as a regular R array with `cdem[[1]]`, which
 {:.output}
 
 
+===
 
 ### Plot a raster
 
@@ -1210,10 +1283,15 @@ We can also display a `stars` object in ***ggplot2*** with the `geom_stars` func
 {:.captioned}
 
 The `plot` function above automatically downsampled the data according to the screen's resolution.
+{:.notes}
+
+===
 
 ### Work with large raster files
 
 For raster files that are too large to load in memory, you can use the `proxy = TRUE` argument in `read_stars`. In that case, R loads a `stars_proxy` object containing the metadata, but not the pixel values. All raster operations can be applied to `stars_proxy` objects as well, but the calculations are not actually performed until the result is plotted (in which case only a fraction of pixels are processed due to downsampling) or the object is saved to disk (with `write_stars`).
+
+===
 
 ### Raster operations
 
@@ -1285,6 +1363,8 @@ Since `stars` objects are fundamentally arrays of values, we can apply mathemati
 ![ ]({% include asset.html path="images/rgeo_workshop/raster_math-2.png" %})
 {:.captioned}
 
+===
+
 ### Exercise 4 {#retour4}
 
 a) Show on a map where the elevation is between 5 and 100 m in the MRC of La Mitis. 
@@ -1293,10 +1373,13 @@ b) What is the highest elevation in that MRC?
 
 [Solution](#sol4)
 
+===
 
 ### Extract values from raster at points
 
 A common use of raster data is to extract values at points of interest. For example, we might want elevation values for each of the forest inventory plots in `plots_01_11`. 
+
+===
 
 Since the ***stars*** package does not have a fast option for point extraction, we will use the ***raster*** package and its `extract` function.
 
@@ -1338,16 +1421,21 @@ CRS:           4269
 {:.output}
 
 
+===
+
 ### Review
 
 * A raster dataset associates a value to each pixel in a regular grid. The ***stars*** package allows us to process this type of data in R.
 * The `read_stars` function loads a raster file in R. For large files, specify `proxy = TRUE` to avoid loading the full raster in memory.
 * The `stars` object can be plotted by itself with `plot`, or added to a `ggplot` with `geom_stars`.
+
+===
+
 * `filter` crops a `stars` object along the specified dimensions, whereas `st_crop` crops it within the boundaries of an `sf` object.
 * Arithmetic (`+`, `-`, etc.) and comparison operators (`<`, `==`, etc.) are applied to each pixel of the `stars` object.
 * The `extract` function from the ***raster*** package extracts raster values at specific points specified by an `sf` object.
 
----
+===
 
 ## Interactive maps with mapview {#mapview}
 
@@ -1368,9 +1456,10 @@ There are a few optional arguments to control the plotting of each type of objec
 {:title="Console" .no-eval .input}
 
 
-![Example mapview](images/mapview_example.png)
+![]({% include asset.html path="images/mapview_example.png" %}){:width="50%" style="border: none; box-shadow: none;"}  
+{:.captioned}
 
----
+===
 
 ## Additional references {#ref}
 
@@ -1378,11 +1467,13 @@ There are a few optional arguments to control the plotting of each type of objec
 
 * [Geocomputation with R](https://geocompr.robinlovelace.net/) (Lovelace, Nowosad and Muenchow) is another comprehensive free textbook for manipulating and analyzing spatial data.
 
+===
+
 * The [R-spatial blog](https://www.r-spatial.org) presents news and tutorials on spatial packages in R. In particular, see this series ([1](https://www.r-spatial.org/r/2018/10/25/ggplot2-sf.html), [2](https://www.r-spatial.org/r/2018/10/25/ggplot2-sf-2.html), [3](https://www.r-spatial.org/r/2018/10/25/ggplot2-sf-3.html)) of posts by Mel Moreno and Mathieu Basille on mapping with *ggplot2*.
 
 * The [RSpatial site](https://rspatial.org/) (not to be confused with the previous one) includes tutorials for the *raster* and *terra* packages to work with raster data.
 
----
+===
 
 ## Data sources {#data}
 
@@ -1390,178 +1481,10 @@ This workshop uses public data made available by Québec and Canada government a
 
 * County regional municipality (CRM) [boundaries](https://mern.gouv.qc.ca/territoire/portrait/portrait-donnees-mille.jsp) were downloaded from the Québec Department of Energy and Natural Resources (MERN) and merged with [population data](https://www.stat.gouv.qc.ca/statistiques/population-demographie/structure/mrc-total.xlsx) from the Institut de la statistique du Québec. Column names were translated to English and diacritic marks (accents) were removed from all place names.
 
+===
+
 * Data on [forest inventory plots](https://www.donneesquebec.ca/recherche/fr/dataset/placettes-echantillons-permanentes-1970-a-aujourd-hui) and [spruce budworm defoliation maps](https://www.donneesquebec.ca/recherche/fr/dataset/donnees-sur-les-perturbations-naturelles-insecte-tordeuse-des-bourgeons-de-lepinette) from the Québec Department of Forests, Wildlife and Parks (MFFP) were downloaded from the Québec Open Data Portal. Some data fields were recoded and translated to English.
 
 * [Canadian Digital Elevation Model](https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333) rasters from Natural Resources Canada were downloaded from the Canada Open Data Portal. Two 2x1 degree sections were merged to use in this workshop.
 
----
 
-## Solutions {#sol}
-
-
-### Exercise 1 {#sol1}
-
-Select the MRCs in the Bas-St-Laurent (*reg_id*: 01) and Gaspesie (*reg_id*: 11) regions, then display their 2016 population on a map.
-
-
-
-~~~r
-> mrc_01_11 <- mrc[mrc$reg_id %in% c("01", "11"), ]
-> plot(mrc_01_11["pop2016"], axes = TRUE)
-~~~
-{:title="Console" .input}
-![ ]({% include asset.html path="images/rgeo_workshop/sol1-1.png" %})
-{:.captioned}
-
-[Return to text](#retour1)
-
-
-### Exercise 2 {#sol2}
-
-Create a map of the MRCs with different fill colors for each region.
-
-
-
-~~~r
-> ggplot(data = mrc_proj, aes(fill = reg_name)) +
-+     geom_sf()
-~~~
-{:title="Console" .input}
-![ ]({% include asset.html path="images/rgeo_workshop/sol2-1.png" %})
-{:.captioned}
-
-[Return to text](#retour2)
-
-
-### Exercise 3 {#sol3}
-
-a) How many of the forest inventory plots in these regions are affected at each defoliation level?
-
-
-
-~~~r
-> defo <- st_read("data/tbe2016_gaspe.shp")
-~~~
-{:title="Console" .input}
-
-
-~~~
-Reading layer `tbe2016_gaspe' from data source `/nfs/public-data/training/tbe2016_gaspe.shp' using driver `ESRI Shapefile'
-Simple feature collection with 3928 features and 2 fields
-Geometry type: POLYGON
-Dimension:     XY
-Bounding box:  xmin: -69.88925 ymin: 47.38829 xmax: -64.66188 ymax: 49.25522
-CRS:           4269
-~~~
-{:.output}
-
-
-~~~r
-> plots_defo <- st_join(plots_01_11, defo)
-~~~
-{:title="Console" .input}
-
-
-~~~
-although coordinates are longitude/latitude, st_intersects assumes that they are planar
-although coordinates are longitude/latitude, st_intersects assumes that they are planar
-~~~
-{:.output}
-
-
-~~~r
-> table(plots_defo$level)
-~~~
-{:title="Console" .input}
-
-
-~~~
-
- 1  2  3 
-93 93 90 
-~~~
-{:.output}
-
-
-b) Plot the defoliated areas located in the MRC of Kamouraska by severity level, also displaying the MRC border.
-
-
-
-~~~r
-> mrc_kam <- filter(mrc_01_11, mrc_name == "Kamouraska")
-> defo_kam <- st_join(defo, mrc_kam, left = FALSE)
-~~~
-{:title="Console" .input}
-
-
-~~~
-although coordinates are longitude/latitude, st_intersects assumes that they are planar
-~~~
-{:.output}
-
-
-~~~r
-> ggplot() +
-+     geom_sf(data = mrc_kam) +
-+     geom_sf(data = defo_kam, color = NA, aes(fill = level))
-~~~
-{:title="Console" .input}
-![ ]({% include asset.html path="images/rgeo_workshop/sol3b-1.png" %})
-{:.captioned}
-
-[Return to text](#retour3)
-
-
-### Exercise 4 {#sol4}
-
-a) Show on a map where the elevation is between 5 and 100 m in the MRC of La Mitis. 
-
-
-
-~~~r
-> mitis <- filter(mrc_01_11, mrc_name == "La Mitis")
-> mitis <- st_transform(mitis, st_crs(cdem))
-> 
-> cdem_mitis <- st_crop(cdem, mitis)
-~~~
-{:title="Console" .input}
-
-
-~~~
-although coordinates are longitude/latitude, st_union assumes that they are planar
-~~~
-{:.output}
-
-
-~~~
-although coordinates are longitude/latitude, st_intersects assumes that they are planar
-~~~
-{:.output}
-
-
-~~~r
-> plot(cdem_mitis >= 5 & cdem_mitis <= 100)
-~~~
-{:title="Console" .input}
-![ ]({% include asset.html path="images/rgeo_workshop/sol4a-1.png" %})
-{:.captioned}
-
-b) What is the highest elevation in that MRC?
-
-
-
-~~~r
-> cdem_mitis_vals <- cdem_mitis[[1]]
-> max(cdem_mitis_vals, na.rm = TRUE)
-~~~
-{:title="Console" .input}
-
-
-~~~
-[1] 794.4375
-~~~
-{:.output}
-
-
-
-[Return to text](#retour4)
