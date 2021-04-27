@@ -231,13 +231,13 @@ A projection converts geographical coordinates in cartesian or rectangular (X, Y
 For example, the images below show how identical circular areas appear at different points of the Earth under a Mercator projection (which preserves shapes) and a Lambert equal-area projection (which preserves areas).
 {:.notes}
 
-![]({% include asset.html path="images/Mercator_distortion.png" %}){:width="50%" style="border: none; box-shadow: none;"}  
+![]({% include asset.html path="images/Mercator_distortion.png" %}){:width="70%" style="border: none; box-shadow: none;"}  
 *Mercator projection preserves shapes*
 {:.captioned}
 
 ===
 
-![]({% include asset.html path="images/Lambert_distortion.png" %}){:width="50%" style="border: none; box-shadow: none;"}  
+![]({% include asset.html path="images/Lambert_distortion.png" %}){:width="70%" style="border: none; box-shadow: none;"}  
 *Lambert equal-area projection preserves areas*
 {:.captioned}
 
@@ -460,6 +460,12 @@ head(plots_mrc)
 
 ===
 
+![]({% include asset.html path="images/st_join.png" %}){:width="80%" style="border: none; box-shadow: none;"}  
+*Default behavior of st_join()*
+{:.captioned}
+
+===
+
 By default, `st_join` performs a "left" join, meaning that it keeps all rows in the first dataset, and adds *NA* values to the extra fields when there is no match in the second dataset. We can see this by joining the `plots` data with the subset of MRC for regions 01 and 11 (see Exercise 1).
 
 ```{r st_join_left}
@@ -492,6 +498,12 @@ a) How many forest inventory plots in these regions are affected at each defolia
 b) Plot the defoliated areas located in the MRC of Kamouraska, along with the MRC border.
 
 [Solution](#sol3)
+
+===
+
+![]({% include asset.html path="images/geom_ops.png" %}){:width="80%" style="border: none; box-shadow: none;"}  
+*Geometry-generating functions*
+{:.captioned}
 
 ===
 
