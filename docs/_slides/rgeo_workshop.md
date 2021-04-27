@@ -13,8 +13,6 @@ output:
 
 
 
----
-
 This workshop provides an overview of tools available in R for the analysis of geolocated data. This type of data is becoming increasingly common in various fields (e.g. aerial photos, satellite imagery, census data, geolocated posts on social networks, etc.). 
 
 ===
@@ -46,9 +44,9 @@ At first, using programming commands to process geographical data can seem less 
 
 * The set of packages available for spatial analysis in R has evolved rapidly. A few years ago, the ***sp*** and ***raster*** packages were the main tools for vector and raster data processing, respectively. ***sf*** and ***stars*** are part of a recent initiative to overhaul R spatial tools ([https://www.r-spatial.org/](https://www.r-spatial.org/)). 
 
-===
-
 * The ***sf*** package represents spatial data frames with a standard format based on open-source geodatabases, and integrates well with popular R packages for data manipulation and visualization (such as ***dplyr*** and ***ggplot2***). 
+
+===
 
 * The ***stars*** package is also compatible with ***ggplot2*** and provides good support for raster "cubes" with non-spatial dimensions such as time.
 
@@ -724,8 +722,6 @@ In this case, ***ggplot2*** automatically transforms all layers to the same CRS 
 
 In addition, `coord_sf` can be used to set coordinate axis limits and zoom in on a portion of the map.
 
-===
-
 
 
 ~~~r
@@ -1126,6 +1122,9 @@ Note that `st_difference` copies the data fields from the original datasets (her
 
 * `st_join(A, B)` takes an `sf` object *A* and appends the data fields from a second object *B* for each case where the feature in *A* intersects with a feature in *B*. Contrary to `st_intersection` below, the geometric features themselves do not change; the result retains the features from *A*.
 * `st_intersection(A, B)` produces a dataset containing all regions where features in *A* and *B* overlap.
+
+===
+
 * `st_difference(A, B)` produces a dataset containing the set differences (portion of *A* not in *B*) for each pair of features in *A* and *B*.
 * `st_union(A, B)` produces a dataset containing the unions (area covered by either *A* or *B*) for each pair of features in *A* and *B*. When given a single `sf` object as input, `st_union` merges all features from that object within a single one.
 * `st_buffer` produces new geometric features that buffer the input features by a given distance.
@@ -1352,7 +1351,10 @@ Since `stars` objects are fundamentally arrays of values, we can apply mathemati
 > plot(cdem_km)
 ~~~
 {:title="Console" .input}
-![ ](images/rgeo_workshop/raster_math-1.png)
+![ ]({% include asset.html path="images/rgeo_workshop/raster_math-1.png" %})
+{:.captioned}
+
+
 
 ~~~r
 > # Display points above 500 m in elevation
@@ -1360,7 +1362,7 @@ Since `stars` objects are fundamentally arrays of values, we can apply mathemati
 > plot(cdem_500)
 ~~~
 {:title="Console" .input}
-![ ]({% include asset.html path="images/rgeo_workshop/raster_math-2.png" %})
+![ ]({% include asset.html path="images/rgeo_workshop/raster_math2-1.png" %})
 {:.captioned}
 
 ===
@@ -1456,7 +1458,10 @@ There are a few optional arguments to control the plotting of each type of objec
 {:title="Console" .no-eval .input}
 
 
-![]({% include asset.html path="images/mapview_example.png" %}){:width="50%" style="border: none; box-shadow: none;"}  
+===
+
+![]({% include asset.html path="images/mapview_example.png" %}){:width="75%" style="border: none; box-shadow: none;"}  
+*Screenshot of mapview example*
 {:.captioned}
 
 ===
