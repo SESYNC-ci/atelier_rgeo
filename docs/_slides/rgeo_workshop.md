@@ -82,11 +82,11 @@ To load this dataset in R, we call the `st_read` function from ***sf*** (all ***
 
 
 ~~~r
-> library(sf)
-> 
-> mrc <- st_read("data/mrc.shp")
+library(sf)
+
+mrc <- st_read("data/mrc.shp")
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -100,9 +100,10 @@ CRS:           4269
 {:.output}
 
 
-===
-
 The output text indicates the main properties of the loaded dataset, including the geometric type (MULTIPOLYGON), the spatial extent of the data (*bbox*) and the coordinate reference system (CRS) in use.
+{:.notes}
+
+===
 
 The bounding box and a detailed description of the CRS can be accessed separately using the `st_bbox` and `st_crs` functions:
 
@@ -143,6 +144,7 @@ GEOGCS["GCS_North_American_1983",
 ===
 
 We will discuss coordinate systems in the next section. For now, note that "Degree" under `UNIT` specifies that these are longitude and latitude coordinates expressed in decimal degrees.
+{:.notes}
 
 Let us look at the first few rows of the data:
 
@@ -205,9 +207,9 @@ The `plot` function applied to an `sf` object creates a map for each field in th
 
 
 ~~~r
-> plot(mrc)
+plot(mrc)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/plot_sf-1.png" %})
 {:.captioned}
 
@@ -218,9 +220,9 @@ To plot a single variable, you need to select the corresponding column. To show 
 
 
 ~~~r
-> plot(mrc["geometry"], axes = TRUE)
+plot(mrc["geometry"], axes = TRUE)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/plot_geom-1.png" %})
 {:.captioned}
 
@@ -231,10 +233,10 @@ You can select a subset of rows or columns of an `sf` object just like a regular
 
 
 ~~~r
-> # Select the 5th row
-> mrc[5, ]
+# Select the 5th row
+mrc[5, ]
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -250,10 +252,10 @@ CRS:           4269
 
 
 ~~~r
-> # Select the MRC name and population columns for MRCs with a population over 200,000
-> mrc[mrc$pop2016 > 200000, c("mrc_name", "pop2016")] 
+# Select the MRC name and population columns for MRCs with a population over 200,000
+mrc[mrc$pop2016 > 200000, c("mrc_name", "pop2016")] 
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -288,17 +290,20 @@ Select the MRCs in the Bas-St-Laurent (*reg_id*: 01) and Gaspesie (*reg_id*: 11)
 
 ### Integration with the dplyr package
 
-The data manipulation functions from the ***dplyr*** package work on `sf` objects as well. For example, we could rewrite the example above (select the name and population of MRCs with populations over 200,000) using `filter` and `select`.
+The data manipulation functions from the ***dplyr*** package work on `sf` objects as well. 
+
+For example, we could rewrite the example above (select the name and population of MRCs with populations over 200,000) using `filter` and `select`.
+{:.notes}
 
 
 
 ~~~r
-> library(dplyr)
-> 
-> filter(mrc, pop2016 > 200000) %>%
-+     select(mrc_name, pop2016)
+library(dplyr)
+
+filter(mrc, pop2016 > 200000) %>%
+    select(mrc_name, pop2016)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -319,15 +324,18 @@ CRS:           4269
 
 ===
 
-When performing a grouped summary, the individual features are also aggregated in a single feature by group. For example, let us aggregate the MRCs and their population by region.
+When performing a grouped summary, the individual features are also aggregated in a single feature by group. 
+
+For example, let us aggregate the MRCs and their population by region.
+{:.notes}
 
 
 
 ~~~r
-> regions <- group_by(mrc, reg_name) %>%
-+     summarize(pop2016 = sum(pop2016))
+regions <- group_by(mrc, reg_name) %>%
+    summarize(pop2016 = sum(pop2016))
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -353,9 +361,9 @@ although coordinates are longitude/latitude, st_union assumes that they are plan
 
 
 ~~~r
-> head(regions)
+head(regions)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -378,9 +386,9 @@ CRS:           4269
 
 
 ~~~r
-> plot(regions["pop2016"])
+plot(regions["pop2016"])
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/sf_groupby-1.png" %})
 {:.captioned}
 
@@ -393,10 +401,10 @@ The `plots_rgeo.csv` file contains data from forest inventory plots of the Québ
 
 
 ~~~r
-> plots <- read.csv("data/plots_rgeo.csv")
-> head(plots)
+plots <- read.csv("data/plots_rgeo.csv")
+head(plots)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -413,17 +421,20 @@ The `plots_rgeo.csv` file contains data from forest inventory plots of the Québ
 
 ===
 
-We can convert this data to an `sf` object with `st_as_sf`. The `coords` argument specifies which columns hold the X and Y coordinates, while the `crs` argument defines the coordinate reference system (here, it is set to the same CRS as the MRC dataset).
+We can convert this data to an `sf` object with `st_as_sf`. 
+
+The `coords` argument specifies which columns hold the X and Y coordinates, while the `crs` argument defines the coordinate reference system (here, it is set to the same CRS as the MRC dataset).
+{:.notes}
 
 
 
 ~~~r
-> plots <- st_as_sf(plots, 
-+                   coords = c("long", "lat"), 
-+                   crs = st_crs(mrc))
-> plot(plots["geometry"])
+plots <- st_as_sf(plots, 
+                  coords = c("long", "lat"), 
+                  crs = st_crs(mrc))
+plot(plots["geometry"])
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/df_to_sf-1.png" %})
 {:.captioned}
 
@@ -442,8 +453,7 @@ We can convert this data to an `sf` object with `st_as_sf`. The `coords` argumen
 ## Coordinate reference systems and transformations {#crs}
 
 Until now, we worked with data using a geographic coordinate system, with positions described as degrees of longitude and latitude. Those coordinates are based on a model that approximates the irregular surface of the Earth's mean sea level (the geoid) as an ellipsoid (a slightly flattened sphere). That model is specified as a *datum* in the CRS description. The `mrc` shapefile uses the NAD83 (North American) datum, whereas many world maps are based on the WGS84 datum.
-
-===
+{:.notes}
 
 
 
@@ -492,10 +502,10 @@ We will convert the `mrc` polygons into a Lambert conical conformal projection c
 
 
 ~~~r
-> mrc_proj <- st_transform(mrc, crs = 6622)
-> st_crs(mrc_proj)
+mrc_proj <- st_transform(mrc, crs = 6622)
+st_crs(mrc_proj)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -530,16 +540,17 @@ PROJCS["NAD83(CSRS) / Quebec Lambert",
 {:.output}
 
 
-===
-
 EPSG codes are useful to quickly specify a projection. The detailed description includes the type of projection (Lambert conformal conic), additional parameters of the projection, as well as the units (metres) for the projected data. The coordinates in metres are relative to a point of origin specified in the projection parameters (*latitude_of_origin* and *central_meridian*).
+{:.notes}
+
+===
 
 
 
 ~~~r
-> plot(mrc_proj["geometry"], axes = TRUE)
+plot(mrc_proj["geometry"], axes = TRUE)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/plot_geom_proj-1.png" %})
 {:.captioned}
 
@@ -550,11 +561,11 @@ To create a map with latitude and longitude lines superposed on projected data, 
 
 
 ~~~r
-> plot(mrc_proj["geometry"], 
-+      axes = TRUE, 
-+      graticule = st_crs(mrc))
+plot(mrc_proj["geometry"], 
+     axes = TRUE, 
+     graticule = st_crs(mrc))
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/plot_graticule-1.png" %})
 {:.captioned}
 
@@ -574,6 +585,7 @@ It is important to always use `st_transform` to convert datasets between differe
 ## Customize maps with ggplot2 {#geomsf}
 
 While the `plot` function is useful to get an overview of a spatial dataset, other packages provide more customization options to create publication-quality maps. In this section, we will see how a widely-used R graphics package, ***ggplot2***, also supports mapping of spatial datasets. 
+{:.notes}
 
 ===
 
@@ -593,28 +605,31 @@ For example, the following code creates a bar plot (`geom_bar`) from the forest 
 
 
 ~~~r
-> library(ggplot2)
-> 
-> ggplot(data = plots, aes(x = height_cls, fill = cover_type)) + 
-+     geom_bar() +
-+     labs(title = "Forest inventory plots", x = "Height class", 
-+          y = "Count", fill = "Cover type")
+library(ggplot2)
+
+ggplot(data = plots, aes(x = height_cls, fill = cover_type)) + 
+    geom_bar() +
+    labs(title = "Forest inventory plots", x = "Height class", 
+         y = "Count", fill = "Cover type")
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/ggplot_bar-1.png" %})
 {:.captioned}
 
 ===
 
-When plotting a vector dataset from an `sf` object, we use the `geom_sf` layer to display the spatial features on a map. It is not necessary to specify *x* and *y* mappings in `aes`, since these are defined by the `sf` object itself. The graticule lines are also automatically drawn.
+When plotting a vector dataset from an `sf` object, we use the `geom_sf` layer to display the spatial features on a map. 
+
+It is not necessary to specify *x* and *y* mappings in `aes`, since these are defined by the `sf` object itself. The graticule lines are also automatically drawn.
+{:.notes}
 
 
 
 ~~~r
-> ggplot(data = mrc_proj) +
-+     geom_sf()
+ggplot(data = mrc_proj) +
+    geom_sf()
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/geom_sf-1.png" %})
 {:.captioned}
 
@@ -628,12 +643,12 @@ In the code below, we add a point layer for the forest inventory plots, assignin
 
 
 ~~~r
-> theme_set(theme_bw())
-> ggplot() +
-+     geom_sf(data = mrc_proj) +
-+     geom_sf(data = plots, aes(color = cover_type), size = 1)
+theme_set(theme_bw())
+ggplot() +
+    geom_sf(data = mrc_proj) +
+    geom_sf(data = plots, aes(color = cover_type), size = 1)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/geom_sf_mult-1.png" %})
 {:.captioned}
 
@@ -643,6 +658,7 @@ When a graphical element is set to a constant outside of the `aes` function, it 
 ===
 
 Notice that the two spatial datasets plotted above use different CRS:
+
 
 
 ~~~r
@@ -710,11 +726,11 @@ In this case, ***ggplot2*** automatically transforms all layers to the same CRS 
 
 
 ~~~r
-> ggplot(data = plots) +
-+     geom_sf() +
-+     coord_sf(crs = 6622)
+ggplot(data = plots) +
+    geom_sf() +
+    coord_sf(crs = 6622)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/ggplot_crs-1.png" %})
 {:.captioned}
 
@@ -725,12 +741,12 @@ In addition, `coord_sf` can be used to set coordinate axis limits and zoom in on
 
 
 ~~~r
-> ggplot(data = regions) +
-+     geom_sf(aes(fill = pop2016)) +
-+     geom_sf_label(aes(label = reg_name)) +
-+     coord_sf(xlim = c(-75, -70), ylim = c(45, 47))
+ggplot(data = regions) +
+    geom_sf(aes(fill = pop2016)) +
+    geom_sf_label(aes(label = reg_name)) +
+    coord_sf(xlim = c(-75, -70), ylim = c(45, 47))
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -795,7 +811,14 @@ First, we use `st_area` to calculate the area of each MRC in the original datase
 
 
 ~~~r
-> areas <- st_area(mrc)
+areas <- st_area(mrc)
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+
+
+
+~~~r
 > head(areas)
 ~~~
 {:title="Console" .input}
@@ -819,7 +842,14 @@ To make it easier to read the results, we can convert them to a different unit.
 
 
 ~~~r
-> units(areas) <- "km^2"
+units(areas) <- "km^2"
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+
+
+
+~~~r
 > head(areas)
 ~~~
 {:title="Console" .input}
@@ -839,9 +869,9 @@ As an example of a spatial predicate, let us now find where the points in `plots
 
 
 ~~~r
-> inters <- st_intersects(plots, mrc)
+inters <- st_intersects(plots, mrc)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -849,6 +879,8 @@ although coordinates are longitude/latitude, st_intersects assumes that they are
 although coordinates are longitude/latitude, st_intersects assumes that they are planar
 ~~~
 {:.output}
+
+
 
 
 ~~~r
@@ -885,9 +917,9 @@ From the results of `st_intersects` above, we could look up the indices to find 
 
 
 ~~~r
-> plots_mrc <- st_join(plots, mrc)
+plots_mrc <- st_join(plots, mrc)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -895,6 +927,8 @@ although coordinates are longitude/latitude, st_intersects assumes that they are
 although coordinates are longitude/latitude, st_intersects assumes that they are planar
 ~~~
 {:.output}
+
+
 
 
 ~~~r
@@ -935,15 +969,18 @@ CRS:           4269
 
 ===
 
-By default, `st_join` performs a "left" join, meaning that it keeps all rows in the first dataset, and adds *NA* values to the extra fields when there is no match in the second dataset. We can see this by joining the `plots` data with the subset of MRC for regions 01 and 11 (see Exercise 1).
+By default, `st_join` performs a "left" join, meaning that it keeps all rows in the first dataset, and adds *NA* values to the extra fields when there is no match in the second dataset. 
+
+We can see this by joining the `plots` data with the subset of MRC for regions 01 and 11 (see Exercise 1).
+{:.notes}
 
 
 
 ~~~r
-> mrc_01_11 <- mrc[mrc$reg_id %in% c("01", "11"), ]
-> plots_01_11 <- st_join(plots, mrc_01_11)
+mrc_01_11 <- mrc[mrc$reg_id %in% c("01", "11"), ]
+plots_01_11 <- st_join(plots, mrc_01_11)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -951,6 +988,8 @@ although coordinates are longitude/latitude, st_intersects assumes that they are
 although coordinates are longitude/latitude, st_intersects assumes that they are planar
 ~~~
 {:.output}
+
+
 
 
 ~~~r
@@ -990,10 +1029,10 @@ With the optional argument `left = FALSE`, we can keep only the plots located in
 
 
 ~~~r
-> mrc_01_11 <- mrc[mrc$reg_id %in% c("01", "11"), ]
-> plots_01_11 <- st_join(plots, mrc_01_11, left = FALSE)
+mrc_01_11 <- mrc[mrc$reg_id %in% c("01", "11"), ]
+plots_01_11 <- st_join(plots, mrc_01_11, left = FALSE)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -1004,11 +1043,11 @@ although coordinates are longitude/latitude, st_intersects assumes that they are
 
 
 ~~~r
-> ggplot() +
-+     geom_sf(data = mrc_01_11) +
-+     geom_sf(data = plots_01_11)
+ggplot() +
+    geom_sf(data = mrc_01_11) +
+    geom_sf(data = plots_01_11)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/st_join_inner-1.png" %})
 {:.captioned}
 
@@ -1032,22 +1071,22 @@ b) Plot the defoliated areas located in the MRC of Kamouraska, along with the MR
 
 ===
 
-Finally, we consider a few geometry-generating functions. The `st_buffer` function creates a buffer at a set distance from each geometry in an object. For example, we can define a 5 km radius around each point in `plots_01_11`. 
+Finally, we consider a few geometry-generating functions. The `st_buffer` function creates a buffer at a set distance from each geometry in an object. 
 
-This function does not work with geographical coordinates (longitude and latitude), so we first project the plots in EPSG 6622. The buffer distance is set in the units of the CRS, in this case metres.
+For example, we can define a 5 km radius around each point in `plots_01_11`. This function does not work with geographical coordinates (longitude and latitude), so we first project the plots in EPSG 6622. The buffer distance is set in the units of the CRS, in this case metres.
 {:.notes}
 
 
 
 ~~~r
-> plots_proj <- st_transform(plots_01_11, crs = 6622)
-> plots_buffer <- st_buffer(plots_proj, dist = 5000)
-> 
-> ggplot() +
-+     geom_sf(data = plots_buffer, linetype = "dotted", fill = NA) +
-+     geom_sf(data = plots_proj)
+plots_proj <- st_transform(plots_01_11, crs = 6622)
+plots_buffer <- st_buffer(plots_proj, dist = 5000)
+
+ggplot() +
+    geom_sf(data = plots_buffer, linetype = "dotted", fill = NA) +
+    geom_sf(data = plots_proj)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/st_buffer-1.png" %})
 {:.captioned}
 
@@ -1058,14 +1097,14 @@ If the original feature is a polygon, a negative buffer distance creates a buffe
 
 
 ~~~r
-> mrc_01_11_proj <- st_transform(mrc_01_11, crs = 6622)
-> mrc_buffer <- st_buffer(mrc_01_11_proj, dist = -5000)
-> 
-> ggplot() +
-+     geom_sf(data = mrc_buffer, linetype = "dotted", fill = NA) +
-+     geom_sf(data = mrc_01_11_proj, fill = NA)
+mrc_01_11_proj <- st_transform(mrc_01_11, crs = 6622)
+mrc_buffer <- st_buffer(mrc_01_11_proj, dist = -5000)
+
+ggplot() +
+    geom_sf(data = mrc_buffer, linetype = "dotted", fill = NA) +
+    geom_sf(data = mrc_01_11_proj, fill = NA)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/st_buffer_neg-1.png" %})
 {:.captioned}
 
@@ -1078,17 +1117,20 @@ If they are applied to two `sf` objects (each of them containing multiple featur
 
 ===
 
-In the following example, `buffer_union` is a single geometric object, a multipolygon that covers all areas included in the individual buffers. The variables, or attributes, associated with individual features are lost in the merge.
+In the following example, `buffer_union` is a single geometric object, a multipolygon that covers all areas included in the individual buffers. 
+
+The variables, or attributes, associated with individual features are lost in the merge.
+{:.notes}
 
 
 
 ~~~r
-> buffer_union <- st_union(mrc_buffer)
-> 
-> ggplot(buffer_union) +
-+     geom_sf()
+buffer_union <- st_union(mrc_buffer)
+
+ggplot(buffer_union) +
+    geom_sf()
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/buffer_union-1.png" %})
 {:.captioned}
 
@@ -1099,9 +1141,9 @@ We then use `st_difference` to extract the 5km "edges" of the MRC polygons that 
 
 
 ~~~r
-> mrc_edge <- st_difference(mrc_01_11_proj, buffer_union)
+mrc_edge <- st_difference(mrc_01_11_proj, buffer_union)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -1112,10 +1154,10 @@ geometries
 
 
 ~~~r
-> ggplot(mrc_edge) +
-+     geom_sf()
+ggplot(mrc_edge) +
+    geom_sf()
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/st_diff-1.png" %})
 {:.captioned}
 
@@ -1164,8 +1206,15 @@ This function associates the dataset to a `stars` object. Typing the object's na
 
 
 ~~~r
-> library(stars)
-> cdem <- read_stars("data/cdem_022BC_3s.tif")
+library(stars)
+cdem <- read_stars("data/cdem_022BC_3s.tif")
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+
+
+
+~~~r
 > cdem
 ~~~
 {:title="Console" .input}
@@ -1270,26 +1319,29 @@ The `plot` function creates a quick 2D image (or heat map) of the raster data.
 
 
 ~~~r
-> plot(cdem)
+plot(cdem)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/plot_stars-1.png" %})
 {:.captioned}
 
 ===
 
-We can also display a `stars` object in ***ggplot2*** with the `geom_stars` function. Because rasters can contain many more pixels than are visible at once on the screen, it is useful to apply a downsampling factor to speed up plotting. Here, `downsample = 5` means that 1 of every 5 pixels is shown. 
+We can also display a `stars` object in ***ggplot2*** with the `geom_stars` function. 
+
+Because rasters can contain many more pixels than are visible at once on the screen, it is useful to apply a downsampling factor to speed up plotting. Here, `downsample = 5` means that 1 of every 5 pixels is shown. 
+{:.notes}
 
 
 
 ~~~r
-> ggplot() +
-+     geom_stars(data = cdem, downsample = 5) +
-+     geom_sf(data = mrc_01_11, color = "white", fill = NA) +
-+     scale_fill_viridis_c() +
-+     coord_sf(xlim = c(-70, -66), ylim = c(48, 49))
+ggplot() +
+    geom_stars(data = cdem, downsample = 5) +
+    geom_sf(data = mrc_01_11, color = "white", fill = NA) +
+    scale_fill_viridis_c() +
+    coord_sf(xlim = c(-70, -66), ylim = c(48, 49))
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/geom_stars-1.png" %})
 {:.captioned}
 
@@ -1311,10 +1363,10 @@ To crop a rectangular section of the raster, we can use the `filter` function fr
 
 
 ~~~r
-> cdem_part <- filter(cdem, x > -67)
-> plot(cdem_part)
+cdem_part <- filter(cdem, x > -67)
+plot(cdem_part)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/unnamed-chunk-3-1.png" %})
 {:.captioned}
 
@@ -1325,11 +1377,11 @@ To crop a raster's extent along the boundaries of a `sf` object, we use the `st_
 
 
 ~~~r
-> mitis <- filter(mrc_01_11, mrc_name == "La Mitis")
-> mitis <- st_transform(mitis, st_crs(cdem))
-> cdem_mitis <- st_crop(cdem, mitis)
+mitis <- filter(mrc_01_11, mrc_name == "La Mitis")
+mitis <- st_transform(mitis, st_crs(cdem))
+cdem_mitis <- st_crop(cdem, mitis)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
@@ -1345,9 +1397,9 @@ although coordinates are longitude/latitude, st_intersects assumes that they are
 
 
 ~~~r
-> plot(cdem_mitis)
+plot(cdem_mitis)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/st_crop-1.png" %})
 {:.captioned}
 
@@ -1358,22 +1410,22 @@ Since `stars` objects are fundamentally arrays of values, we can apply mathemati
 
 
 ~~~r
-> # Convert elevation values to km
-> cdem_km <- cdem / 1000
-> plot(cdem_km)
+# Convert elevation values to km
+cdem_km <- cdem / 1000
+plot(cdem_km)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/raster_math-1.png" %})
 {:.captioned}
 
 
 
 ~~~r
-> # Display points above 500 m in elevation
-> cdem_500 <- cdem > 500
-> plot(cdem_500)
+# Display points above 500 m in elevation
+cdem_500 <- cdem > 500
+plot(cdem_500)
 ~~~
-{:title="Console" .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/rgeo_workshop/raster_math2-1.png" %})
 {:.captioned}
 
@@ -1400,12 +1452,18 @@ Since the ***stars*** package does not have a fast option for point extraction, 
 
 
 ~~~r
-> library(raster)
-> cdem_r <- as(cdem, "Raster") # convert from stars to raster format
-> plots_elev <- extract(cdem_r, plots_01_11)
-> 
-> plots_01_11$elev <- plots_elev # save in a new column of the sf object
-> 
+library(raster)
+cdem_r <- as(cdem, "Raster") # convert from stars to raster format
+plots_elev <- extract(cdem_r, plots_01_11)
+
+plots_01_11$elev <- plots_elev # save in a new column of the sf object
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+
+
+
+~~~r
 > head(plots_01_11)
 ~~~
 {:title="Console" .input}
@@ -1462,12 +1520,12 @@ There are a few optional arguments to control the plotting of each type of objec
 
 
 ~~~r
-> library(mapview)
-> 
-> mapview(cdem) +
-+     mapview(plots_01_11, zcol = "cover_type")
+library(mapview)
+
+mapview(cdem) +
+    mapview(plots_01_11, zcol = "cover_type")
 ~~~
-{:title="Console" .no-eval .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .no-eval .text-document}
 
 
 ===

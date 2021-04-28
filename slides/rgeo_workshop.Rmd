@@ -81,15 +81,16 @@ Note that a single shapefile dataset is spread across multiple files, which shar
 
 To load this dataset in R, we call the `st_read` function from ***sf*** (all ***sf*** package functions start with the prefix `st_`, standing for spatiotemporal) and provide the path to the *.shp* file.
 
-```{r read_mrc, warning = FALSE, message = FALSE}
+```{r read_mrc, warning = FALSE, message = FALSE, handout = 0}
 library(sf)
 
 mrc <- st_read("data/mrc.shp")
 ```
 
-===
-
 The output text indicates the main properties of the loaded dataset, including the geometric type (MULTIPOLYGON), the spatial extent of the data (*bbox*) and the coordinate reference system (CRS) in use.
+{:.notes}
+
+===
 
 The bounding box and a detailed description of the CRS can be accessed separately using the `st_bbox` and `st_crs` functions:
 ```{r prop_mrc}
@@ -100,6 +101,7 @@ st_crs(mrc)
 ===
 
 We will discuss coordinate systems in the next section. For now, note that "Degree" under `UNIT` specifies that these are longitude and latitude coordinates expressed in decimal degrees.
+{:.notes}
 
 Let us look at the first few rows of the data:
 ```{r class_head}
@@ -120,7 +122,7 @@ An `sf` object is a specialized `data.frame` where each line contains data assoc
 
 The `plot` function applied to an `sf` object creates a map for each field in the dataset.
 
-```{r plot_sf}
+```{r plot_sf, handout = 0}
 plot(mrc)
 ```
 
@@ -128,7 +130,7 @@ plot(mrc)
 
 To plot a single variable, you need to select the corresponding column. To show a map without data variables, you can select the *geometry* column. The `axes = TRUE` parameter tells R to show coordinate axes.
 
-```{r plot_geom}
+```{r plot_geom, handout = 0}
 plot(mrc["geometry"], axes = TRUE)
 ```
 
@@ -136,7 +138,7 @@ plot(mrc["geometry"], axes = TRUE)
 
 You can select a subset of rows or columns of an `sf` object just like a regular data frame.  
 
-```{r sf_subset}
+```{r sf_subset, handout = 0}
 # Select the 5th row
 mrc[5, ]
 # Select the MRC name and population columns for MRCs with a population over 200,000
@@ -159,9 +161,12 @@ Select the MRCs in the Bas-St-Laurent (*reg_id*: 01) and Gaspesie (*reg_id*: 11)
 
 ### Integration with the dplyr package
 
-The data manipulation functions from the ***dplyr*** package work on `sf` objects as well. For example, we could rewrite the example above (select the name and population of MRCs with populations over 200,000) using `filter` and `select`.
+The data manipulation functions from the ***dplyr*** package work on `sf` objects as well. 
 
-```{r sf_dplyr, message = FALSE, warning = FALSE}
+For example, we could rewrite the example above (select the name and population of MRCs with populations over 200,000) using `filter` and `select`.
+{:.notes}
+
+```{r sf_dplyr, message = FALSE, warning = FALSE, handout = 0}
 library(dplyr)
 
 filter(mrc, pop2016 > 200000) %>%
@@ -170,9 +175,12 @@ filter(mrc, pop2016 > 200000) %>%
 
 ===
 
-When performing a grouped summary, the individual features are also aggregated in a single feature by group. For example, let us aggregate the MRCs and their population by region.
+When performing a grouped summary, the individual features are also aggregated in a single feature by group. 
 
-```{r sf_groupby}
+For example, let us aggregate the MRCs and their population by region.
+{:.notes}
+
+```{r sf_groupby, handout = 0}
 regions <- group_by(mrc, reg_name) %>%
     summarize(pop2016 = sum(pop2016))
 head(regions)
@@ -185,16 +193,19 @@ plot(regions["pop2016"])
 
 The `plots_rgeo.csv` file contains data from forest inventory plots of the Québec Department of Forests, Wildlife and Parks (MFFP), including the plot ID, latitude and longitude, survey date, cover type (deciduous, mixed or coniferous) and canopy height class.  
 
-```{r load_plots}
+```{r load_plots, handout = 0}
 plots <- read.csv("data/plots_rgeo.csv")
 head(plots)
 ```
 
 ===
 
-We can convert this data to an `sf` object with `st_as_sf`. The `coords` argument specifies which columns hold the X and Y coordinates, while the `crs` argument defines the coordinate reference system (here, it is set to the same CRS as the MRC dataset).
+We can convert this data to an `sf` object with `st_as_sf`. 
 
-```{r df_to_sf}
+The `coords` argument specifies which columns hold the X and Y coordinates, while the `crs` argument defines the coordinate reference system (here, it is set to the same CRS as the MRC dataset).
+{:.notes}
+
+```{r df_to_sf, handout = 0}
 plots <- st_as_sf(plots, 
                   coords = c("long", "lat"), 
                   crs = st_crs(mrc))
@@ -216,8 +227,7 @@ plot(plots["geometry"])
 ## Coordinate reference systems and transformations {#crs}
 
 Until now, we worked with data using a geographic coordinate system, with positions described as degrees of longitude and latitude. Those coordinates are based on a model that approximates the irregular surface of the Earth's mean sea level (the geoid) as an ellipsoid (a slightly flattened sphere). That model is specified as a *datum* in the CRS description. The `mrc` shapefile uses the NAD83 (North American) datum, whereas many world maps are based on the WGS84 datum.
-
-===
+{:.notes}
 
 ```{r st_crs}
 st_crs(mrc)
@@ -245,16 +255,17 @@ For example, the images below show how identical circular areas appear at differ
 
 We will convert the `mrc` polygons into a Lambert conical conformal projection centered on Quebec ([EPSG:6622](https://epsg.io/6622)), using `st_transform`.
 
-```{r transform}
+```{r transform, handout = 0}
 mrc_proj <- st_transform(mrc, crs = 6622)
 st_crs(mrc_proj)
 ```
 
+EPSG codes are useful to quickly specify a projection. The detailed description includes the type of projection (Lambert conformal conic), additional parameters of the projection, as well as the units (metres) for the projected data. The coordinates in metres are relative to a point of origin specified in the projection parameters (*latitude_of_origin* and *central_meridian*).
+{:.notes}
+
 ===
 
-EPSG codes are useful to quickly specify a projection. The detailed description includes the type of projection (Lambert conformal conic), additional parameters of the projection, as well as the units (metres) for the projected data. The coordinates in metres are relative to a point of origin specified in the projection parameters (*latitude_of_origin* and *central_meridian*).
-
-```{r plot_geom_proj}
+```{r plot_geom_proj, handout = 0}
 plot(mrc_proj["geometry"], axes = TRUE)
 ```
 
@@ -262,7 +273,7 @@ plot(mrc_proj["geometry"], axes = TRUE)
 
 To create a map with latitude and longitude lines superposed on projected data, we can specify a geographical coordinate system (here, based on the original data) to the `graticule` argument:
 
-```{r plot_graticule}
+```{r plot_graticule, handout = 0}
 plot(mrc_proj["geometry"], 
      axes = TRUE, 
      graticule = st_crs(mrc))
@@ -284,6 +295,7 @@ It is important to always use `st_transform` to convert datasets between differe
 ## Customize maps with ggplot2 {#geomsf}
 
 While the `plot` function is useful to get an overview of a spatial dataset, other packages provide more customization options to create publication-quality maps. In this section, we will see how a widely-used R graphics package, ***ggplot2***, also supports mapping of spatial datasets. 
+{:.notes}
 
 ===
 
@@ -300,7 +312,7 @@ Producing any type of graph with ***ggplot2*** requires a similar sequence of st
 
 For example, the following code creates a bar plot (`geom_bar`) from the forest inventory plots data (`data = plots`), showing the number of forest plots by height class (*x* axis) and by cover type (different fill colors of the bars). The `labs` function defines custom labels for the title, axes and legend.
 
-```{r ggplot_bar, message = FALSE, warning = FALSE}
+```{r ggplot_bar, message = FALSE, warning = FALSE, handout = 0}
 library(ggplot2)
 
 ggplot(data = plots, aes(x = height_cls, fill = cover_type)) + 
@@ -311,9 +323,12 @@ ggplot(data = plots, aes(x = height_cls, fill = cover_type)) +
 
 ===
 
-When plotting a vector dataset from an `sf` object, we use the `geom_sf` layer to display the spatial features on a map. It is not necessary to specify *x* and *y* mappings in `aes`, since these are defined by the `sf` object itself. The graticule lines are also automatically drawn.
+When plotting a vector dataset from an `sf` object, we use the `geom_sf` layer to display the spatial features on a map. 
 
-```{r geom_sf}
+It is not necessary to specify *x* and *y* mappings in `aes`, since these are defined by the `sf` object itself. The graticule lines are also automatically drawn.
+{:.notes}
+
+```{r geom_sf, handout = 0}
 ggplot(data = mrc_proj) +
     geom_sf()
 ```
@@ -325,7 +340,7 @@ To add multiple spatial layers to the same map, we simply add more `geom_sf` lay
 In the code below, we add a point layer for the forest inventory plots, assigning the color aesthetic to cover type. We also use `theme_set(theme_bw())` to change from the default grey theme to the black and white theme in all future plots.
 {:.notes}
 
-```{r geom_sf_mult}
+```{r geom_sf_mult, handout = 0}
 theme_set(theme_bw())
 ggplot() +
     geom_sf(data = mrc_proj) +
@@ -338,6 +353,7 @@ When a graphical element is set to a constant outside of the `aes` function, it 
 ===
 
 Notice that the two spatial datasets plotted above use different CRS:
+
 ```{r}
 st_crs(mrc_proj)
 st_crs(plots)
@@ -347,7 +363,7 @@ st_crs(plots)
 
 In this case, ***ggplot2*** automatically transforms all layers to the same CRS before plotting; by default, it is the CRS of the first dataset, but a different CRS can be specified with the `coord_sf` function.
 
-```{r ggplot_crs}
+```{r ggplot_crs, handout = 0}
 ggplot(data = plots) +
     geom_sf() +
     coord_sf(crs = 6622)
@@ -357,7 +373,7 @@ ggplot(data = plots) +
 
 In addition, `coord_sf` can be used to set coordinate axis limits and zoom in on a portion of the map.
 
-```{r coord_sf}
+```{r coord_sf, handout = 0}
 ggplot(data = regions) +
     geom_sf(aes(fill = pop2016)) +
     geom_sf_label(aes(label = reg_name)) +
@@ -415,8 +431,11 @@ In this workshop, we will present a few examples of each class. For a more detai
 
 First, we use `st_area` to calculate the area of each MRC in the original dataset.
 
-```{r st_area}
+```{r st_area, handout = 0}
 areas <- st_area(mrc)
+```
+
+```{r head_areas}
 head(areas)
 ```
 
@@ -427,8 +446,11 @@ Note that the answer is in square metres, even though `mrc` uses geographical co
 
 To make it easier to read the results, we can convert them to a different unit.
 
-```{r units_areas}
+```{r units_areas, handout = 0}
 units(areas) <- "km^2"
+```
+
+```{r head_areas2}
 head(areas)
 ```
 
@@ -436,8 +458,11 @@ head(areas)
 
 As an example of a spatial predicate, let us now find where the points in `plots` and the polygons in `mrc` *intersect*, i.e. which individual features have points in common.
 
-```{r st_intersects}
+```{r st_intersects, handout = 0}
 inters <- st_intersects(plots, mrc)
+```
+
+```{r head_inters}
 inters[1:3] # look at the first 3 elements in the output
 ```
 
@@ -453,8 +478,11 @@ indicates that this function treats geographical coordinates as if they were X-Y
 
 From the results of `st_intersects` above, we could look up the indices to find the name of the MRC in which each inventory plot is located. Fortunately, there is a spatial join function `st_join` that automates this process, by appending to one `sf` object the data fields from a second `sf` object where the features intersect. 
 
-```{r st_join}
+```{r st_join, handout = 0}
 plots_mrc <- st_join(plots, mrc)
+```
+
+```{r head_join}
 head(plots_mrc)
 ```
 
@@ -466,11 +494,17 @@ head(plots_mrc)
 
 ===
 
-By default, `st_join` performs a "left" join, meaning that it keeps all rows in the first dataset, and adds *NA* values to the extra fields when there is no match in the second dataset. We can see this by joining the `plots` data with the subset of MRC for regions 01 and 11 (see Exercise 1).
+By default, `st_join` performs a "left" join, meaning that it keeps all rows in the first dataset, and adds *NA* values to the extra fields when there is no match in the second dataset. 
 
-```{r st_join_left}
+We can see this by joining the `plots` data with the subset of MRC for regions 01 and 11 (see Exercise 1).
+{:.notes}
+
+```{r st_join_left, handout = 0}
 mrc_01_11 <- mrc[mrc$reg_id %in% c("01", "11"), ]
 plots_01_11 <- st_join(plots, mrc_01_11)
+```
+
+```{r head_joined_plots}
 head(plots_01_11)
 ```
 
@@ -478,7 +512,7 @@ head(plots_01_11)
 
 With the optional argument `left = FALSE`, we can keep only the plots located in the two target regions.
 
-```{r st_join_inner}
+```{r st_join_inner, handout = 0}
 mrc_01_11 <- mrc[mrc$reg_id %in% c("01", "11"), ]
 plots_01_11 <- st_join(plots, mrc_01_11, left = FALSE)
 
@@ -507,12 +541,12 @@ b) Plot the defoliated areas located in the MRC of Kamouraska, along with the MR
 
 ===
 
-Finally, we consider a few geometry-generating functions. The `st_buffer` function creates a buffer at a set distance from each geometry in an object. For example, we can define a 5 km radius around each point in `plots_01_11`. 
+Finally, we consider a few geometry-generating functions. The `st_buffer` function creates a buffer at a set distance from each geometry in an object. 
 
-This function does not work with geographical coordinates (longitude and latitude), so we first project the plots in EPSG 6622. The buffer distance is set in the units of the CRS, in this case metres.
+For example, we can define a 5 km radius around each point in `plots_01_11`. This function does not work with geographical coordinates (longitude and latitude), so we first project the plots in EPSG 6622. The buffer distance is set in the units of the CRS, in this case metres.
 {:.notes}
 
-```{r st_buffer}
+```{r st_buffer, handout = 0}
 plots_proj <- st_transform(plots_01_11, crs = 6622)
 plots_buffer <- st_buffer(plots_proj, dist = 5000)
 
@@ -525,7 +559,7 @@ ggplot() +
 
 If the original feature is a polygon, a negative buffer distance creates a buffer inside the polygon.
 
-```{r st_buffer_neg}
+```{r st_buffer_neg, handout = 0}
 mrc_01_11_proj <- st_transform(mrc_01_11, crs = 6622)
 mrc_buffer <- st_buffer(mrc_01_11_proj, dist = -5000)
 
@@ -543,9 +577,12 @@ If they are applied to two `sf` objects (each of them containing multiple featur
 
 ===
 
-In the following example, `buffer_union` is a single geometric object, a multipolygon that covers all areas included in the individual buffers. The variables, or attributes, associated with individual features are lost in the merge.
+In the following example, `buffer_union` is a single geometric object, a multipolygon that covers all areas included in the individual buffers. 
 
-```{r buffer_union}
+The variables, or attributes, associated with individual features are lost in the merge.
+{:.notes}
+
+```{r buffer_union, handout = 0}
 buffer_union <- st_union(mrc_buffer)
 
 ggplot(buffer_union) +
@@ -556,7 +593,7 @@ ggplot(buffer_union) +
 
 We then use `st_difference` to extract the 5km "edges" of the MRC polygons that are outside the combined buffer.
 
-```{r st_diff}
+```{r st_diff, handout = 0}
 mrc_edge <- st_difference(mrc_01_11_proj, buffer_union)
 
 ggplot(mrc_edge) +
@@ -605,9 +642,12 @@ This function associates the dataset to a `stars` object. Typing the object's na
 {:.notes}
 
 
-```{r read_stars, message = FALSE, warning = FALSE}
+```{r read_stars, message = FALSE, warning = FALSE, handout = 0}
 library(stars)
 cdem <- read_stars("data/cdem_022BC_3s.tif")
+```
+
+```{r print_stars}
 cdem
 ```
 
@@ -646,15 +686,18 @@ str(elev)
 
 The `plot` function creates a quick 2D image (or heat map) of the raster data.
 
-```{r plot_stars}
+```{r plot_stars, handout = 0}
 plot(cdem)
 ```
 
 ===
 
-We can also display a `stars` object in ***ggplot2*** with the `geom_stars` function. Because rasters can contain many more pixels than are visible at once on the screen, it is useful to apply a downsampling factor to speed up plotting. Here, `downsample = 5` means that 1 of every 5 pixels is shown. 
+We can also display a `stars` object in ***ggplot2*** with the `geom_stars` function. 
 
-```{r geom_stars}
+Because rasters can contain many more pixels than are visible at once on the screen, it is useful to apply a downsampling factor to speed up plotting. Here, `downsample = 5` means that 1 of every 5 pixels is shown. 
+{:.notes}
+
+```{r geom_stars, handout = 0}
 ggplot() +
     geom_stars(data = cdem, downsample = 5) +
     geom_sf(data = mrc_01_11, color = "white", fill = NA) +
@@ -677,7 +720,7 @@ For raster files that are too large to load in memory, you can use the `proxy = 
 
 To crop a rectangular section of the raster, we can use the `filter` function from ***dplyr*** along one or multiple dimensions. For example, here is the portion of the raster east of 67 degrees West.
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, handout = 0}
 cdem_part <- filter(cdem, x > -67)
 plot(cdem_part)
 ```
@@ -686,7 +729,7 @@ plot(cdem_part)
 
 To crop a raster's extent along the boundaries of a `sf` object, we use the `st_crop` function. The following code shows the elevation of points in the MRC of La Mitis. Note that we converted the polygon to the CRS of the raster prior to cropping.
 
-```{r st_crop}
+```{r st_crop, handout = 0}
 mitis <- filter(mrc_01_11, mrc_name == "La Mitis")
 mitis <- st_transform(mitis, st_crs(cdem))
 cdem_mitis <- st_crop(cdem, mitis)
@@ -697,13 +740,13 @@ plot(cdem_mitis)
 
 Since `stars` objects are fundamentally arrays of values, we can apply mathematical operations to each pixel just like we would for a regular array in R. 
 
-```{r raster_math}
+```{r raster_math, handout = 0}
 # Convert elevation values to km
 cdem_km <- cdem / 1000
 plot(cdem_km)
 ```
 
-```{r raster_math2}
+```{r raster_math2, handout = 0}
 # Display points above 500 m in elevation
 cdem_500 <- cdem > 500
 plot(cdem_500)
@@ -729,13 +772,15 @@ A common use of raster data is to extract values at points of interest. For exam
 
 Since the ***stars*** package does not have a fast option for point extraction, we will use the ***raster*** package and its `extract` function.
 
-```{r extract_pt, message = FALSE, warning = FALSE}
+```{r extract_pt, message = FALSE, warning = FALSE, handout = 0}
 library(raster)
 cdem_r <- as(cdem, "Raster") # convert from stars to raster format
 plots_elev <- extract(cdem_r, plots_01_11)
 
 plots_01_11$elev <- plots_elev # save in a new column of the sf object
+```
 
+```{r head_plots_elev}
 head(plots_01_11)
 ```
 
@@ -763,7 +808,7 @@ The ***mapview*** package provides visualizations of `sf` and `raster` layers on
 
 There are a few optional arguments to control the plotting of each type of object. In the example below, we use the `zcol` argument to select the variable by which to color the points in `plots_01_11`.
 
-```{r mapview, eval = FALSE}
+```{r mapview, eval = FALSE, handout = 0}
 library(mapview)
 
 mapview(cdem) +

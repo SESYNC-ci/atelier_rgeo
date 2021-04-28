@@ -46,7 +46,7 @@ plot(...)
 
 # Create a spatial object from a data frame
 
-plots <- read.csv("data/plots_rego.csv")
+plots <- read.csv("data/plots_rgeo.csv")
 
 plots <- st_as_sf(plots, ...)
 
@@ -81,7 +81,7 @@ ggplot(...) +
 theme_set(theme_bw())
 ggplot() +
     geom_sf(data = ...) +
-    geom_sf(data = ..., aes(...), size = 1) +
+    geom_sf(data = ..., aes(...), size = 1)
 
 # Change coordinate systems
 ggplot(data = plots) +
@@ -166,6 +166,8 @@ ggplot() +
 
 buffer_union <- ...
 
+ggplot(buffer_union) +
+    geom_sf()
 
 # Difference
 
