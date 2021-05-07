@@ -1,0 +1,1622 @@
+---
+---
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introduction to geospatial data analysis in R</title>
+<meta name="description" content="Introduction à l'analyse des données géospatiales avec R">
+<link rel="canonical"
+      href="https://SESYNC-ci.github.io/atelier_rgeo/2021/05/07/index.html">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/SESYNC-ci/lesson-style@3.0/docs/assets/css/default.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/SESYNC-ci/lesson-style@3.0/docs/assets/css/syntax.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/SESYNC-ci/lesson-style@3.0/docs/assets/css/static.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+      rel="stylesheet"
+      integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+      crossorigin="anonymous">
+
+    
+  </head>
+  <body>
+    <div class="page-content">
+      <div class="wrapper">
+        
+
+<h1 style="text-transform: none;" id="introduction-to-geospatial-data-analysis-in-r">Introduction to geospatial data analysis in R</h1>
+
+<p>Lesson 1 with <em>Quentin Read</em></p>
+
+<nav id="ToC">
+
+  <ul>
+    <li><a href="#/slides/rgeo_workshop">This workshop provides an overview of tools available in R for the analysis of geolocated data. This type of data is becoming increasingly common in various fields (e.g. aerial photos, satellite imagery, census data, geolocated posts on social networks, etc.).</a></li>
+    <li><a href="#/slides/solutions">Solutions</a></li>
+  </ul>
+</nav>
+
+<hr />
+<p><a name="/slides/rgeo_workshop"></a></p>
+
+<section><p>This workshop provides an overview of tools available in R for the analysis of geolocated data. This type of data is becoming increasingly common in various fields (e.g. aerial photos, satellite imagery, census data, geolocated posts on social networks, etc.).</p>
+
+</section>
+
+<section>
+
+<p>There are two broad categories of geospatial data:</p>
+
+<ul>
+  <li>raster data represent variables defined at every point of a grid covering the full extent of the data (as in satellite images);</li>
+  <li>vector data associate variables (sometimes also called attributes) to discrete geometrical objects located in space (such as the position of cities and highways on a road map).</li>
+</ul>
+
+</section>
+
+<section>
+
+<p>At first, using programming commands to process geographical data can seem less intuitive, compared with the graphical user interface of GIS software. Here are a few advantages of scripted analyses:</p>
+
+<ul>
+  <li>It is easy to repeat the analysis for new data by re-running the script.</li>
+  <li>It is easy for other researchers to reproduce the methods if they have access to the same programming language.</li>
+  <li>When using R specifically, the spatial data can be extracted and merged with other datasets for statistical analyses in a single programming environment.</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="objectives">Objectives</h2>
+
+<ul>
+  <li>Become familiar with R packages for processing and simple visualization of vector and raster data (the <strong><em>sf</em></strong> and <strong><em>stars</em></strong> packages, respectively).</li>
+  <li>Perform common data transformation operations using functions from those packages.</li>
+  <li>Create more complex static maps (with <strong><em>ggplot2</em></strong>) and interactive maps (with <strong><em>mapview</em></strong>).</li>
+</ul>
+
+</section>
+
+<section>
+
+<h3 id="note-on-packages">Note on packages</h3>
+
+<ul>
+  <li>
+    <p>The set of packages available for spatial analysis in R has evolved rapidly. A few years ago, the <strong><em>sp</em></strong> and <strong><em>raster</em></strong> packages were the main tools for vector and raster data processing, respectively. <strong><em>sf</em></strong> and <strong><em>stars</em></strong> are part of a recent initiative to overhaul R spatial tools (<a href="https://www.r-spatial.org/">https://www.r-spatial.org/</a>).</p>
+  </li>
+  <li>
+    <p>The <strong><em>sf</em></strong> package represents spatial data frames with a standard format based on open-source geodatabases, and integrates well with popular R packages for data manipulation and visualization (such as <strong><em>dplyr</em></strong> and <strong><em>ggplot2</em></strong>).</p>
+  </li>
+</ul>
+
+</section>
+
+<section>
+
+<ul>
+  <li>
+    <p>The <strong><em>stars</em></strong> package is also compatible with <strong><em>ggplot2</em></strong> and provides good support for raster “cubes” with non-spatial dimensions such as time.</p>
+  </li>
+  <li>
+    <p>The <strong><em>raster</em></strong> package and its successor <strong><em>terra</em></strong> (released in 2020) have some features not present in <strong><em>stars</em></strong> and perform some operations faster. Therefore it can be useful to learn them if your workflow includes complex operations on large rasters; see the documentation at <a href="https://rspatial.org/">https://rspatial.org/</a> for more details.</p>
+  </li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="contents">Contents</h2>
+
+<ul>
+  <li><a href="#vect">Explore a vector dataset</a></li>
+  <li><a href="#crs">Coordinate reference systems and transformations</a></li>
+  <li><a href="#geomsf">Customize maps with ggplot2</a></li>
+  <li><a href="#vectop">Geometric operations on vector data</a></li>
+  <li><a href="#rast">Raster datasets</a></li>
+  <li><a href="#mapview">Interactive maps with <em>mapview</em></a></li>
+  <li><a href="#ref">Additional references</a></li>
+  <li><a href="#data">Data sources</a></li>
+  <li><a href="#sol">Exercise solutions</a></li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="vect">Explore a vector dataset</h2>
+
+<p>All datasets used in this workshop can be found in the <em>data</em> folder. The <em>mrc</em> dataset contains information on Québec regional county municipalities (MRCs) in a <em>ESRI shapefile</em> format.</p>
+
+<p class="notes">Note that a single shapefile dataset is spread across multiple files, which share a name but differ in their file extension (<em>mrc.dbf</em>, <em>mrc.prj</em>, <em>mrc.shp</em> and <em>mrc.shx</em>).</p>
+
+</section>
+
+<section>
+
+<p>To load this dataset in R, we call the <code class="language-plaintext highlighter-rouge">st_read</code> function from <strong><em>sf</em></strong> (all <strong><em>sf</em></strong> package functions start with the prefix <code class="language-plaintext highlighter-rouge">st_</code>, standing for spatiotemporal) and provide the path to the <em>.shp</em> file.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">sf</span><span class="p">)</span><span class="w">
+
+</span><span class="n">mrc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_read</span><span class="p">(</span><span class="s2">"data/mrc.shp"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Reading layer `mrc' from data source `/nfs/public-data/training/mrc.shp' using driver `ESRI Shapefile'
+Simple feature collection with 104 features and 4 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -79.7625 ymin: 44.99136 xmax: -56.93495 ymax: 62.58217
+CRS:           4269
+</code></pre></div></div>
+
+<p class="notes">The output text indicates the main properties of the loaded dataset, including the geometric type (MULTIPOLYGON), the spatial extent of the data (<em>bbox</em>) and the coordinate reference system (CRS) in use.</p>
+
+</section>
+
+<section>
+
+<p>The bounding box and a detailed description of the CRS can be accessed separately using the <code class="language-plaintext highlighter-rouge">st_bbox</code> and <code class="language-plaintext highlighter-rouge">st_crs</code> functions:</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">st_bbox</span><span class="p">(</span><span class="n">mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     xmin      ymin      xmax      ymax 
+-79.76250  44.99136 -56.93495  62.58217 
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">st_crs</span><span class="p">(</span><span class="n">mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Coordinate Reference System:
+  User input: 4269 
+  wkt:
+GEOGCS["GCS_North_American_1983",
+    DATUM["North_American_Datum_1983",
+        SPHEROID["GRS_1980",6378137,298.257222101]],
+    PRIMEM["Greenwich",0],
+    UNIT["Degree",0.017453292519943295],
+    AUTHORITY["EPSG","4269"]]
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p class="notes">We will discuss coordinate systems in the next section. For now, note that “Degree” under <code class="language-plaintext highlighter-rouge">UNIT</code> specifies that these are longitude and latitude coordinates expressed in decimal degrees.</p>
+
+<p>Let us look at the first few rows of the data:</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="nf">class</span><span class="p">(</span><span class="n">mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] "sf"         "data.frame"
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">head</span><span class="p">(</span><span class="n">mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Simple feature collection with 6 features and 4 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -79.51776 ymin: 45.44911 xmax: -63.31941 ymax: 62.58217
+CRS:           4269
+                          mrc_name reg_id              reg_name pop2016
+1                          Abitibi     08 Abitibi-Temiscamingue   24707
+2                    Abitibi-Ouest     08 Abitibi-Temiscamingue   20582
+3                            Acton     16            Monteregie   15623
+4 Administration regionale Kativik     10        Nord-du-Quebec   13343
+5                  Antoine-Labelle     15           Laurentides   35410
+6                       Argenteuil     15           Laurentides   32477
+                        geometry
+1 MULTIPOLYGON (((-78.64359 4...
+2 MULTIPOLYGON (((-79.51776 4...
+3 MULTIPOLYGON (((-72.70415 4...
+4 MULTIPOLYGON (((-77.82293 5...
+5 MULTIPOLYGON (((-75.52133 4...
+6 MULTIPOLYGON (((-74.71004 4...
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>An <code class="language-plaintext highlighter-rouge">sf</code> object is a specialized <code class="language-plaintext highlighter-rouge">data.frame</code> where each line contains data associated with a geometry element (or <em>simple feature</em>, hence the package name), which is described in the <code class="language-plaintext highlighter-rouge">geometry</code> column. The most common feature types are:</p>
+
+<ul>
+  <li>POINT: Coordinates (<em>x</em>, <em>y</em>) of a point.</li>
+  <li>LINESTRING: Sequence of points connected by length segments.</li>
+  <li>POLYGON: Sequence of points creating a closed simple polygon.</li>
+  <li>MULTIPOINT, MULTILINESTRING ou MULTIPOLYGON: Dataset where each feature can be composed of multiple points, linestrings or polygons.</li>
+</ul>
+
+</section>
+
+<section>
+
+<p>The <code class="language-plaintext highlighter-rouge">plot</code> function applied to an <code class="language-plaintext highlighter-rouge">sf</code> object creates a map for each field in the dataset.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/plot_sf-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>To plot a single variable, you need to select the corresponding column. To show a map without data variables, you can select the <em>geometry</em> column. The <code class="language-plaintext highlighter-rouge">axes = TRUE</code> parameter tells R to show coordinate axes.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">mrc</span><span class="p">[</span><span class="s2">"geometry"</span><span class="p">],</span><span class="w"> </span><span class="n">axes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/plot_geom-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>You can select a subset of rows or columns of an <code class="language-plaintext highlighter-rouge">sf</code> object just like a regular data frame.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="c1"># Select the 5th row</span><span class="w">
+</span><span class="n">mrc</span><span class="p">[</span><span class="m">5</span><span class="p">,</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Simple feature collection with 1 feature and 4 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -76.14932 ymin: 45.95376 xmax: -74.34359 ymax: 47.76333
+CRS:           4269
+         mrc_name reg_id    reg_name pop2016                       geometry
+5 Antoine-Labelle     15 Laurentides   35410 MULTIPOLYGON (((-75.52133 4...
+</code></pre></div></div>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="c1"># Select the MRC name and population columns for MRCs with a population over 200,000</span><span class="w">
+</span><span class="n">mrc</span><span class="p">[</span><span class="n">mrc</span><span class="o">$</span><span class="n">pop2016</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">200000</span><span class="p">,</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"mrc_name"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pop2016"</span><span class="p">)]</span><span class="w"> 
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Simple feature collection with 5 features and 2 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -75.90834 ymin: 45.37075 xmax: -71.13162 ymax: 46.98186
+CRS:           4269
+    mrc_name pop2016                       geometry
+23  Gatineau  278198 MULTIPOLYGON (((-75.89532 4...
+47     Laval  425225 MULTIPOLYGON (((-73.74488 4...
+69 Longueuil  417497 MULTIPOLYGON (((-73.44474 4...
+82  Montreal 1959836 MULTIPOLYGON (((-73.49801 4...
+89    Quebec  572755 MULTIPOLYGON (((-71.55293 4...
+</code></pre></div></div>
+
+<p class="notes">Note that the column containing the spatial information (<em>geometry</em>) is always retained, even if not explicitly selected. To discard that column and convert the <code class="language-plaintext highlighter-rouge">sf</code> object to a regular (non-spatial) data frame, you can use the function <code class="language-plaintext highlighter-rouge">st_drop_geometry</code>.</p>
+
+</section>
+
+<section>
+
+<h3 id="retour1">Exercise 1</h3>
+
+<p>Select the MRCs in the Bas-St-Laurent (<em>reg_id</em>: 01) and Gaspesie (<em>reg_id</em>: 11) regions, then display their 2016 population on a map.<br />
+<em>Hint</em>: The operator <code class="language-plaintext highlighter-rouge">%in%</code> can check if a variable has one value within a set, for example <code class="language-plaintext highlighter-rouge">x %in% c(1, 3)</code> returns TRUE if <em>x</em> is equal to 1 or 3.</p>
+
+<p><a href="#sol1">Solution</a></p>
+
+</section>
+
+<section>
+
+<h3 id="integration-with-the-dplyr-package">Integration with the dplyr package</h3>
+
+<p>The data manipulation functions from the <strong><em>dplyr</em></strong> package work on <code class="language-plaintext highlighter-rouge">sf</code> objects as well.</p>
+
+<p class="notes">For example, we could rewrite the example above (select the name and population of MRCs with populations over 200,000) using <code class="language-plaintext highlighter-rouge">filter</code> and <code class="language-plaintext highlighter-rouge">select</code>.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span><span class="w">
+
+</span><span class="n">filter</span><span class="p">(</span><span class="n">mrc</span><span class="p">,</span><span class="w"> </span><span class="n">pop2016</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">200000</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">select</span><span class="p">(</span><span class="n">mrc_name</span><span class="p">,</span><span class="w"> </span><span class="n">pop2016</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Simple feature collection with 5 features and 2 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -75.90834 ymin: 45.37075 xmax: -71.13162 ymax: 46.98186
+CRS:           4269
+   mrc_name pop2016                       geometry
+1  Gatineau  278198 MULTIPOLYGON (((-75.89532 4...
+2     Laval  425225 MULTIPOLYGON (((-73.74488 4...
+3 Longueuil  417497 MULTIPOLYGON (((-73.44474 4...
+4  Montreal 1959836 MULTIPOLYGON (((-73.49801 4...
+5    Quebec  572755 MULTIPOLYGON (((-71.55293 4...
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>When performing a grouped summary, the individual features are also aggregated in a single feature by group.</p>
+
+<p class="notes">For example, let us aggregate the MRCs and their population by region.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">regions</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">group_by</span><span class="p">(</span><span class="n">mrc</span><span class="p">,</span><span class="w"> </span><span class="n">reg_name</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">summarize</span><span class="p">(</span><span class="n">pop2016</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">sum</span><span class="p">(</span><span class="n">pop2016</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+although coordinates are longitude/latitude, st_union assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">head</span><span class="p">(</span><span class="n">regions</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Simple feature collection with 6 features and 2 fields
+Geometry type: GEOMETRY
+Dimension:     XY
+Bounding box:  xmin: -79.57933 ymin: 45.58943 xmax: -56.93495 ymax: 55.00006
+CRS:           4269
+# A tibble: 6 x 3
+  reg_name         pop2016                                              geometry
+  &lt;chr&gt;              &lt;dbl&gt;                                        &lt;GEOMETRY [°]&gt;
+1 Abitibi-Temisca…  147282 POLYGON ((-77.93147 47.27012, -77.93155 47.26624, -7…
+2 Bas-Saint-Laure…  197806 POLYGON ((-68.38319 47.88014, -68.38314 47.83307, -6…
+3 Capitale-Nation…  733898 POLYGON ((-70.69151 47.03311, -70.69453 47.02324, -7…
+4 Centre-du-Quebec  243354 POLYGON ((-72.09283 45.79699, -72.11938 45.77338, -7…
+5 Chaudiere-Appal…  421993 POLYGON ((-70.2784 46.05675, -70.2784 46.05608, -70.…
+6 Cote-Nord          92712 MULTIPOLYGON (((-66.25978 55.00001, -66.25001 55, -6…
+</code></pre></div></div>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">regions</span><span class="p">[</span><span class="s2">"pop2016"</span><span class="p">])</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/sf_groupby-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<h3 id="create-a-spatial-object-from-a-data-frame">Create a spatial object from a data frame</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">plots_rgeo.csv</code> file contains data from forest inventory plots of the Québec Department of Forests, Wildlife and Parks (MFFP), including the plot ID, latitude and longitude, survey date, cover type (deciduous, mixed or coniferous) and canopy height class.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plots</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.csv</span><span class="p">(</span><span class="s2">"data/plots_rgeo.csv"</span><span class="p">)</span><span class="w">
+</span><span class="n">head</span><span class="p">(</span><span class="n">plots</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   plot_id      lat      long  surv_date cover_type height_cls
+1 99100101 45.35944 -72.89580 2012-11-12  Deciduous    17-22 m
+2 99100102 45.36267 -72.89244 2012-09-08  Deciduous      &gt;22 m
+3 99100201 45.49196 -71.16727 2008-09-11  Deciduous    17-22 m
+4 99100202 45.49068 -71.16180 2008-09-11  Deciduous    17-22 m
+5 99100301 45.47711 -72.58792 2012-08-30  Deciduous      &gt;22 m
+6 99100302 45.47969 -72.58448 2012-08-30  Deciduous      &gt;22 m
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>We can convert this data to an <code class="language-plaintext highlighter-rouge">sf</code> object with <code class="language-plaintext highlighter-rouge">st_as_sf</code>.</p>
+
+<p class="notes">The <code class="language-plaintext highlighter-rouge">coords</code> argument specifies which columns hold the X and Y coordinates, while the <code class="language-plaintext highlighter-rouge">crs</code> argument defines the coordinate reference system (here, it is set to the same CRS as the MRC dataset).</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plots</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_as_sf</span><span class="p">(</span><span class="n">plots</span><span class="p">,</span><span class="w"> 
+                  </span><span class="n">coords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"long"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lat"</span><span class="p">),</span><span class="w"> 
+                  </span><span class="n">crs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">st_crs</span><span class="p">(</span><span class="n">mrc</span><span class="p">))</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">plots</span><span class="p">[</span><span class="s2">"geometry"</span><span class="p">])</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/df_to_sf-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<h3 id="review">Review</h3>
+
+<ul>
+  <li>Spatial vector data associate data fields to localized geometric features such as points, lines and polygons. The <strong><em>sf</em></strong> package can be used to work with those datasets in R.</li>
+  <li>To read a vector dataset: <code class="language-plaintext highlighter-rouge">st_read</code>.</li>
+  <li>To convert a regular <code class="language-plaintext highlighter-rouge">data.frame</code> into a spatial object: <code class="language-plaintext highlighter-rouge">st_as_sf</code>.</li>
+  <li>All basic <code class="language-plaintext highlighter-rouge">data.frame</code> operations, as well as <strong><em>dplyr</em></strong> package operations, also apply to <code class="language-plaintext highlighter-rouge">sf</code> objects.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">plot</code> function applied to an <code class="language-plaintext highlighter-rouge">sf</code> object displays one or many data fields on a map.</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="crs">Coordinate reference systems and transformations</h2>
+
+<p class="notes">Until now, we worked with data using a geographic coordinate system, with positions described as degrees of longitude and latitude. Those coordinates are based on a model that approximates the irregular surface of the Earth’s mean sea level (the geoid) as an ellipsoid (a slightly flattened sphere). That model is specified as a <em>datum</em> in the CRS description. The <code class="language-plaintext highlighter-rouge">mrc</code> shapefile uses the NAD83 (North American) datum, whereas many world maps are based on the WGS84 datum.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">st_crs</span><span class="p">(</span><span class="n">mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Coordinate Reference System:
+  User input: 4269 
+  wkt:
+GEOGCS["GCS_North_American_1983",
+    DATUM["North_American_Datum_1983",
+        SPHEROID["GRS_1980",6378137,298.257222101]],
+    PRIMEM["Greenwich",0],
+    UNIT["Degree",0.017453292519943295],
+    AUTHORITY["EPSG","4269"]]
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p class="notes">A projection converts geographical coordinates in cartesian or rectangular (X, Y) coordinates. Since it is impossible to provide an exact representation of a curved surface on a plane, specialized projections were developed for different regions of the world and different analytical applications.</p>
+
+<p class="notes">For example, the images below show how identical circular areas appear at different points of the Earth under a Mercator projection (which preserves shapes) and a Lambert equal-area projection (which preserves areas).</p>
+
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/Mercator_distortion.png" alt="" width="70%" style="border: none; box-shadow: none;" /><br />
+<em>Mercator projection preserves shapes</em></p>
+
+</section>
+
+<section>
+
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/Lambert_distortion.png" alt="" width="70%" style="border: none; box-shadow: none;" /><br />
+<em>Lambert equal-area projection preserves areas</em></p>
+
+</section>
+
+<section>
+
+<p>We will convert the <code class="language-plaintext highlighter-rouge">mrc</code> polygons into a Lambert conical conformal projection centered on Quebec (<a href="https://epsg.io/6622">EPSG:6622</a>), using <code class="language-plaintext highlighter-rouge">st_transform</code>.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">mrc_proj</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_transform</span><span class="p">(</span><span class="n">mrc</span><span class="p">,</span><span class="w"> </span><span class="n">crs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">6622</span><span class="p">)</span><span class="w">
+</span><span class="n">st_crs</span><span class="p">(</span><span class="n">mrc_proj</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Coordinate Reference System:
+  User input: EPSG:6622 
+  wkt:
+PROJCS["NAD83(CSRS) / Quebec Lambert",
+    GEOGCS["NAD83(CSRS)",
+        DATUM["NAD83_Canadian_Spatial_Reference_System",
+            SPHEROID["GRS 1980",6378137,298.257222101,
+                AUTHORITY["EPSG","7019"]],
+            TOWGS84[0,0,0,0,0,0,0],
+            AUTHORITY["EPSG","6140"]],
+        PRIMEM["Greenwich",0,
+            AUTHORITY["EPSG","8901"]],
+        UNIT["degree",0.0174532925199433,
+            AUTHORITY["EPSG","9122"]],
+        AUTHORITY["EPSG","4617"]],
+    PROJECTION["Lambert_Conformal_Conic_2SP"],
+    PARAMETER["standard_parallel_1",60],
+    PARAMETER["standard_parallel_2",46],
+    PARAMETER["latitude_of_origin",44],
+    PARAMETER["central_meridian",-68.5],
+    PARAMETER["false_easting",0],
+    PARAMETER["false_northing",0],
+    UNIT["metre",1,
+        AUTHORITY["EPSG","9001"]],
+    AXIS["X",EAST],
+    AXIS["Y",NORTH],
+    AUTHORITY["EPSG","6622"]]
+</code></pre></div></div>
+
+<p class="notes">EPSG codes are useful to quickly specify a projection. The detailed description includes the type of projection (Lambert conformal conic), additional parameters of the projection, as well as the units (metres) for the projected data. The coordinates in metres are relative to a point of origin specified in the projection parameters (<em>latitude_of_origin</em> and <em>central_meridian</em>).</p>
+
+</section>
+
+<section>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">mrc_proj</span><span class="p">[</span><span class="s2">"geometry"</span><span class="p">],</span><span class="w"> </span><span class="n">axes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/plot_geom_proj-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>To create a map with latitude and longitude lines superposed on projected data, we can specify a geographical coordinate system (here, based on the original data) to the <code class="language-plaintext highlighter-rouge">graticule</code> argument:</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">mrc_proj</span><span class="p">[</span><span class="s2">"geometry"</span><span class="p">],</span><span class="w"> 
+     </span><span class="n">axes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> 
+     </span><span class="n">graticule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">st_crs</span><span class="p">(</span><span class="n">mrc</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/plot_graticule-1.png" alt=" " /></p>
+
+<p class="notes">It is important to always use <code class="language-plaintext highlighter-rouge">st_transform</code> to convert datasets between different coordinate systems. A common error consists in modifying the coordinate system of a dataset (for example, with <code class="language-plaintext highlighter-rouge">st_crs</code>) without transforming the data themselves.</p>
+
+</section>
+
+<section>
+
+<h3 id="review-1">Review</h3>
+
+<ul>
+  <li>Geographic coordinate systems are based on a <em>datum</em> (model of the Earth’s shape) and describe the position in terms of spherical coordinates (longitude, latitude) measured in degrees.</li>
+  <li>Projected coordinate systems convert spherical coordinates into rectangular coordinates (<em>x</em>, <em>y</em>) measured in a unit of length such as metres.</li>
+  <li><code class="language-plaintext highlighter-rouge">st_crs</code> returns the coordinate system of an <code class="language-plaintext highlighter-rouge">sf</code> object; <code class="language-plaintext highlighter-rouge">st_transform</code> converts the data from one coordinate system to another.</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="geomsf">Customize maps with ggplot2</h2>
+
+<p class="notes">While the <code class="language-plaintext highlighter-rouge">plot</code> function is useful to get an overview of a spatial dataset, other packages provide more customization options to create publication-quality maps. In this section, we will see how a widely-used R graphics package, <strong><em>ggplot2</em></strong>, also supports mapping of spatial datasets.</p>
+
+</section>
+
+<section>
+
+<p class="notes">For those not familiar with <strong><em>ggplot2</em></strong>, a comprehensive introduction can be found in the <a href="https://r4ds.had.co.nz/data-visualisation.html">Data Visualisation</a> chapter of <em>R for Data Science</em> by Wickham and Grolemund.</p>
+
+<p>Producing any type of graph with <strong><em>ggplot2</em></strong> requires a similar sequence of steps:</p>
+
+<ul>
+  <li>Specify the dataset as well as aesthetic mappings (<code class="language-plaintext highlighter-rouge">aes</code>), which associate variables in the data to graphical elements (<em>x</em> and <em>y</em> axes, color or size scale, etc.);</li>
+  <li>Add <code class="language-plaintext highlighter-rouge">geom_</code> layers, which specify the type of graph;</li>
+  <li>Optionally, specify additional customization options such as axis names and limits, color themes, and more.</li>
+</ul>
+
+</section>
+
+<section>
+
+<p>For example, the following code creates a bar plot (<code class="language-plaintext highlighter-rouge">geom_bar</code>) from the forest inventory plots data (<code class="language-plaintext highlighter-rouge">data = plots</code>), showing the number of forest plots by height class (<em>x</em> axis) and by cover type (different fill colors of the bars). The <code class="language-plaintext highlighter-rouge">labs</code> function defines custom labels for the title, axes and legend.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plots</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">height_cls</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cover_type</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">geom_bar</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Forest inventory plots"</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Height class"</span><span class="p">,</span><span class="w"> 
+         </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Count"</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Cover type"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/ggplot_bar-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>When plotting a vector dataset from an <code class="language-plaintext highlighter-rouge">sf</code> object, we use the <code class="language-plaintext highlighter-rouge">geom_sf</code> layer to display the spatial features on a map.</p>
+
+<p class="notes">It is not necessary to specify <em>x</em> and <em>y</em> mappings in <code class="language-plaintext highlighter-rouge">aes</code>, since these are defined by the <code class="language-plaintext highlighter-rouge">sf</code> object itself. The graticule lines are also automatically drawn.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mrc_proj</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/geom_sf-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>To add multiple spatial layers to the same map, we simply add more <code class="language-plaintext highlighter-rouge">geom_sf</code> layers, which can be based on different datasets (specifying the <code class="language-plaintext highlighter-rouge">data</code> argument in each <code class="language-plaintext highlighter-rouge">geom</code>).</p>
+
+<p class="notes">In the code below, we add a point layer for the forest inventory plots, assigning the color aesthetic to cover type. We also use <code class="language-plaintext highlighter-rouge">theme_set(theme_bw())</code> to change from the default grey theme to the black and white theme in all future plots.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">theme_set</span><span class="p">(</span><span class="n">theme_bw</span><span class="p">())</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mrc_proj</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plots</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cover_type</span><span class="p">),</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/geom_sf_mult-1.png" alt=" " /></p>
+
+<p class="notes">When a graphical element is set to a constant outside of the <code class="language-plaintext highlighter-rouge">aes</code> function, it is applied to the whole layer; therefore <code class="language-plaintext highlighter-rouge">size = 1</code> means that all points will be of size 1.</p>
+
+</section>
+
+<section>
+
+<p>Notice that the two spatial datasets plotted above use different CRS:</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">st_crs</span><span class="p">(</span><span class="n">mrc_proj</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Coordinate Reference System:
+  User input: EPSG:6622 
+  wkt:
+PROJCS["NAD83(CSRS) / Quebec Lambert",
+    GEOGCS["NAD83(CSRS)",
+        DATUM["NAD83_Canadian_Spatial_Reference_System",
+            SPHEROID["GRS 1980",6378137,298.257222101,
+                AUTHORITY["EPSG","7019"]],
+            TOWGS84[0,0,0,0,0,0,0],
+            AUTHORITY["EPSG","6140"]],
+        PRIMEM["Greenwich",0,
+            AUTHORITY["EPSG","8901"]],
+        UNIT["degree",0.0174532925199433,
+            AUTHORITY["EPSG","9122"]],
+        AUTHORITY["EPSG","4617"]],
+    PROJECTION["Lambert_Conformal_Conic_2SP"],
+    PARAMETER["standard_parallel_1",60],
+    PARAMETER["standard_parallel_2",46],
+    PARAMETER["latitude_of_origin",44],
+    PARAMETER["central_meridian",-68.5],
+    PARAMETER["false_easting",0],
+    PARAMETER["false_northing",0],
+    UNIT["metre",1,
+        AUTHORITY["EPSG","9001"]],
+    AXIS["X",EAST],
+    AXIS["Y",NORTH],
+    AUTHORITY["EPSG","6622"]]
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">st_crs</span><span class="p">(</span><span class="n">plots</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Coordinate Reference System:
+  User input: 4269 
+  wkt:
+GEOGCS["GCS_North_American_1983",
+    DATUM["North_American_Datum_1983",
+        SPHEROID["GRS_1980",6378137,298.257222101]],
+    PRIMEM["Greenwich",0],
+    UNIT["Degree",0.017453292519943295],
+    AUTHORITY["EPSG","4269"]]
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>In this case, <strong><em>ggplot2</em></strong> automatically transforms all layers to the same CRS before plotting; by default, it is the CRS of the first dataset, but a different CRS can be specified with the <code class="language-plaintext highlighter-rouge">coord_sf</code> function.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plots</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">coord_sf</span><span class="p">(</span><span class="n">crs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">6622</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/ggplot_crs-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>In addition, <code class="language-plaintext highlighter-rouge">coord_sf</code> can be used to set coordinate axis limits and zoom in on a portion of the map.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regions</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pop2016</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf_label</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reg_name</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">coord_sf</span><span class="p">(</span><span class="n">xlim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-75</span><span class="p">,</span><span class="w"> </span><span class="m">-70</span><span class="p">),</span><span class="w"> </span><span class="n">ylim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">45</span><span class="p">,</span><span class="w"> </span><span class="m">47</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Warning in st_point_on_surface.sfc(sf::st_zm(x)): st_point_on_surface may not
+give correct results for longitude/latitude data
+</code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/coord_sf-1.png" alt=" " /></p>
+
+<p class="notes">This last example introduced a new geom <code class="language-plaintext highlighter-rouge">geom_sf_label</code>, which adds a text label to each feature based on a value defined by the <code class="language-plaintext highlighter-rouge">label</code> aesthetic. The geom <code class="language-plaintext highlighter-rouge">geom_sf_text</code> works the same way, but does not draw a white box around the text label.</p>
+
+</section>
+
+<section>
+
+<h3 id="retour2">Exercise 2</h3>
+
+<p>Create a map of the MRCs with different fill colors for each region.</p>
+
+<p><a href="#sol2">Solution</a></p>
+
+</section>
+
+<section>
+
+<h3 id="review-2">Review</h3>
+
+<ul>
+  <li>A <strong><em>ggplot2</em></strong> graph starts with a call to the <code class="language-plaintext highlighter-rouge">ggplot()</code> function, followed by specific <code class="language-plaintext highlighter-rouge">geom</code> defining each graph layer, followed by optional customization functions.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">data</code> argument specifies the dataset to plot and the <code class="language-plaintext highlighter-rouge">aes</code> function associates variables in that dataset to graphical elements. These can be defined in the <code class="language-plaintext highlighter-rouge">ggplot</code> function (if they apply to all layers) or in specific <code class="language-plaintext highlighter-rouge">geom</code> layers.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">geom_sf</code> layer plots an <code class="language-plaintext highlighter-rouge">sf</code> object on a map.</li>
+</ul>
+
+</section>
+
+<section>
+
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">geom_sf_text</code> or <code class="language-plaintext highlighter-rouge">geom_sf_label</code> layers can be used to add textual data to each spatial feature on a map.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">coord_sf</code> function defines axis limits and the CRS to use, transforming all spatial features to that CRS. By default, the CRS of the first plotted spatial dataset is used.</li>
+</ul>
+
+</section>
+
+<section>
+
+<h3 id="other-mapping-packages">Other mapping packages</h3>
+
+<p>The <strong><em>tmap</em></strong> package (see <a href="https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html">this tutorial</a>) is another option for producing maps in R. It was developed before <strong><em>ggplot2</em></strong> supported <code class="language-plaintext highlighter-rouge">sf</code> objects and functions with a similar layering logic.</p>
+
+</section>
+
+<section>
+
+<h2 id="vectop">Geometric operations on vector data</h2>
+
+<p>The <strong><em>sf</em></strong> package includes a number of geometric operations for vector data, which are similar to those found in geodatabases or GIS software.</p>
+
+</section>
+
+<section>
+
+<p>These operations can be grouped into three classes:</p>
+
+<ul>
+  <li>predicates, or tests which output TRUE or FALSE (e.g. is geometry A inside B?);</li>
+  <li>measures, which produce a scalar quantity (e.g. length of a line, area of a polygon, distance between two geometries);</li>
+  <li>geometry-generating functions which produce output geometries based on input (e.g. distance buffer around a point, centroid of a polygon, intersection of two lines or polygons).</li>
+</ul>
+
+</section>
+
+<section>
+
+<p class="notes">In this workshop, we will present a few examples of each class. For a more detailed presentation, see Chapter 5 of the <em>Spatial Data Science</em> book listed in the <a href="#ref">additional references</a>.</p>
+
+<p>First, we use <code class="language-plaintext highlighter-rouge">st_area</code> to calculate the area of each MRC in the original dataset.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">areas</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_area</span><span class="p">(</span><span class="n">mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">head</span><span class="p">(</span><span class="n">areas</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Units: [m^2]
+[1]   7940855145   3630423258    582240572 513075556996  16304017180
+[6]   1335860444
+</code></pre></div></div>
+
+<p class="notes">Note that the answer is in square metres, even though <code class="language-plaintext highlighter-rouge">mrc</code> uses geographical coordinates. Three measure functions: <code class="language-plaintext highlighter-rouge">st_area</code>, <code class="language-plaintext highlighter-rouge">st_length</code> and <code class="language-plaintext highlighter-rouge">st_distance</code> implement geodetic measures which take into account the curvature of the Earth. This is not the case for other operations, as we will see below.</p>
+
+</section>
+
+<section>
+
+<p>To make it easier to read the results, we can convert them to a different unit.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">units</span><span class="p">(</span><span class="n">areas</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"km^2"</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">head</span><span class="p">(</span><span class="n">areas</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Units: [km^2]
+[1]   7940.8551   3630.4233    582.2406 513075.5570  16304.0172   1335.8604
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>As an example of a spatial predicate, let us now find where the points in <code class="language-plaintext highlighter-rouge">plots</code> and the polygons in <code class="language-plaintext highlighter-rouge">mrc</code> <em>intersect</em>, i.e. which individual features have points in common.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">inters</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_intersects</span><span class="p">(</span><span class="n">plots</span><span class="p">,</span><span class="w"> </span><span class="n">mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_intersects assumes that they are planar
+although coordinates are longitude/latitude, st_intersects assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">inters</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="m">3</span><span class="p">]</span><span class="w"> </span><span class="c1"># look at the first 3 elements in the output</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[[1]]
+[1] 94
+
+[[2]]
+[1] 94
+
+[[3]]
+[1] 53
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p class="notes">When comparing two spatial objects with a predicate like <code class="language-plaintext highlighter-rouge">st_intersects</code>, the result is a list of the same length as the first object (here, <code class="language-plaintext highlighter-rouge">plots</code>). Each element of that list contains the indices of the features in the second object for which the predicate is true. In this example, the first list element (<code class="language-plaintext highlighter-rouge">[[1]]</code>) indicates that plot 1 intersects with MRC 94, the third element indicates that plot 3 intersects with MRC 53, etc. Here each plot intersects with a single MRC, but in general an element of the intersection could be empty (if that feature in the first object has no intersection with the second object) or contain many indices (if that feature overlaps with multiple ones in object 2).</p>
+
+<p class="notes">The warning text<br />
+<code class="language-plaintext highlighter-rouge">although coordinates are longitude/latitude, st_intersects assumes that they are planar</code><br />
+indicates that this function treats geographical coordinates as if they were X-Y coordinates on a plane. In particular, the boundaries of a polygon are not the shortest lines between its vertices, since they ignore the curvature of the Earth. The difference is usually minor unless the line segments are very long, if they are near a pole or the international date line (where longitude jumps from -180 to 180 degrees).</p>
+
+<p>From the results of <code class="language-plaintext highlighter-rouge">st_intersects</code> above, we could look up the indices to find the name of the MRC in which each inventory plot is located. Fortunately, there is a spatial join function <code class="language-plaintext highlighter-rouge">st_join</code> that automates this process, by appending to one <code class="language-plaintext highlighter-rouge">sf</code> object the data fields from a second <code class="language-plaintext highlighter-rouge">sf</code> object where the features intersect.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plots_mrc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_join</span><span class="p">(</span><span class="n">plots</span><span class="p">,</span><span class="w"> </span><span class="n">mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_intersects assumes that they are planar
+although coordinates are longitude/latitude, st_intersects assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">head</span><span class="p">(</span><span class="n">plots_mrc</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Simple feature collection with 6 features and 8 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: -72.8958 ymin: 45.35944 xmax: -71.1618 ymax: 45.49196
+CRS:           4269
+   plot_id  surv_date cover_type height_cls               mrc_name reg_id
+1 99100101 2012-11-12  Deciduous    17-22 m               Rouville     16
+2 99100102 2012-09-08  Deciduous      &gt;22 m               Rouville     16
+3 99100201 2008-09-11  Deciduous    17-22 m Le Haut-Saint-Francois     05
+4 99100202 2008-09-11  Deciduous    17-22 m Le Haut-Saint-Francois     05
+5 99100301 2012-08-30  Deciduous      &gt;22 m       La Haute-Yamaska     16
+6 99100302 2012-08-30  Deciduous      &gt;22 m       La Haute-Yamaska     16
+    reg_name pop2016                   geometry
+1 Monteregie   36724  POINT (-72.8958 45.35944)
+2 Monteregie   36724 POINT (-72.89244 45.36267)
+3     Estrie   22376 POINT (-71.16727 45.49196)
+4     Estrie   22376  POINT (-71.1618 45.49068)
+5 Monteregie   88683 POINT (-72.58792 45.47711)
+6 Monteregie   88683 POINT (-72.58448 45.47969)
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/st_join.png" alt="" width="80%" style="border: none; box-shadow: none;" /><br />
+<em>Default behavior of st_join()</em></p>
+
+</section>
+
+<section>
+
+<p>By default, <code class="language-plaintext highlighter-rouge">st_join</code> performs a “left” join, meaning that it keeps all rows in the first dataset, and adds <em>NA</em> values to the extra fields when there is no match in the second dataset.</p>
+
+<p class="notes">We can see this by joining the <code class="language-plaintext highlighter-rouge">plots</code> data with the subset of MRC for regions 01 and 11 (see Exercise 1).</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">mrc_01_11</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mrc</span><span class="p">[</span><span class="n">mrc</span><span class="o">$</span><span class="n">reg_id</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"01"</span><span class="p">,</span><span class="w"> </span><span class="s2">"11"</span><span class="p">),</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="n">plots_01_11</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_join</span><span class="p">(</span><span class="n">plots</span><span class="p">,</span><span class="w"> </span><span class="n">mrc_01_11</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_intersects assumes that they are planar
+although coordinates are longitude/latitude, st_intersects assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">head</span><span class="p">(</span><span class="n">plots_01_11</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Simple feature collection with 6 features and 8 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: -72.8958 ymin: 45.35944 xmax: -71.1618 ymax: 45.49196
+CRS:           4269
+   plot_id  surv_date cover_type height_cls mrc_name reg_id reg_name pop2016
+1 99100101 2012-11-12  Deciduous    17-22 m     &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;      NA
+2 99100102 2012-09-08  Deciduous      &gt;22 m     &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;      NA
+3 99100201 2008-09-11  Deciduous    17-22 m     &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;      NA
+4 99100202 2008-09-11  Deciduous    17-22 m     &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;      NA
+5 99100301 2012-08-30  Deciduous      &gt;22 m     &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;      NA
+6 99100302 2012-08-30  Deciduous      &gt;22 m     &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;      NA
+                    geometry
+1  POINT (-72.8958 45.35944)
+2 POINT (-72.89244 45.36267)
+3 POINT (-71.16727 45.49196)
+4  POINT (-71.1618 45.49068)
+5 POINT (-72.58792 45.47711)
+6 POINT (-72.58448 45.47969)
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>With the optional argument <code class="language-plaintext highlighter-rouge">left = FALSE</code>, we can keep only the plots located in the two target regions.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">mrc_01_11</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mrc</span><span class="p">[</span><span class="n">mrc</span><span class="o">$</span><span class="n">reg_id</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"01"</span><span class="p">,</span><span class="w"> </span><span class="s2">"11"</span><span class="p">),</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="n">plots_01_11</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_join</span><span class="p">(</span><span class="n">plots</span><span class="p">,</span><span class="w"> </span><span class="n">mrc_01_11</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_intersects assumes that they are planar
+although coordinates are longitude/latitude, st_intersects assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mrc_01_11</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plots_01_11</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/st_join_inner-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<h3 id="retour3">Exercise 3</h3>
+
+<p>The shapefile <em>data/tbe2016_gaspe.shp</em> contains a map of areas defoliated by the spruce budworm in the Bas-St-Laurent and Gaspesie regions in 2016. The defoliation level is represented by an integer: 1 = Light, 2 = Moderate and 3 = Severe.</p>
+
+<p>a) How many forest inventory plots in these regions are affected at each defoliation level? <em>Hint</em>: The <code class="language-plaintext highlighter-rouge">table</code> function could be useful to get counts of each value in a column.</p>
+
+<p>b) Plot the defoliated areas located in the MRC of Kamouraska, along with the MRC border.</p>
+
+<p><a href="#sol3">Solution</a></p>
+
+</section>
+
+<section>
+
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/geom_ops.png" alt="" width="80%" style="border: none; box-shadow: none;" /><br />
+<em>Geometry-generating functions</em></p>
+
+</section>
+
+<section>
+
+<p>Finally, we consider a few geometry-generating functions. The <code class="language-plaintext highlighter-rouge">st_buffer</code> function creates a buffer at a set distance from each geometry in an object.</p>
+
+<p class="notes">For example, we can define a 5 km radius around each point in <code class="language-plaintext highlighter-rouge">plots_01_11</code>. This function does not work with geographical coordinates (longitude and latitude), so we first project the plots in EPSG 6622. The buffer distance is set in the units of the CRS, in this case metres.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plots_proj</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_transform</span><span class="p">(</span><span class="n">plots_01_11</span><span class="p">,</span><span class="w"> </span><span class="n">crs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">6622</span><span class="p">)</span><span class="w">
+</span><span class="n">plots_buffer</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_buffer</span><span class="p">(</span><span class="n">plots_proj</span><span class="p">,</span><span class="w"> </span><span class="n">dist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5000</span><span class="p">)</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plots_buffer</span><span class="p">,</span><span class="w"> </span><span class="n">linetype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"dotted"</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NA</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plots_proj</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/st_buffer-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>If the original feature is a polygon, a negative buffer distance creates a buffer inside the polygon.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">mrc_01_11_proj</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_transform</span><span class="p">(</span><span class="n">mrc_01_11</span><span class="p">,</span><span class="w"> </span><span class="n">crs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">6622</span><span class="p">)</span><span class="w">
+</span><span class="n">mrc_buffer</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_buffer</span><span class="p">(</span><span class="n">mrc_01_11_proj</span><span class="p">,</span><span class="w"> </span><span class="n">dist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">-5000</span><span class="p">)</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mrc_buffer</span><span class="p">,</span><span class="w"> </span><span class="n">linetype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"dotted"</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NA</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mrc_01_11_proj</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NA</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/st_buffer_neg-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>Next, we will see three functions based on set operations. If <em>A</em> and <em>B</em> are geometric features, their union is the area covered by A or B, their intersection is the area covered by both A and B, and the difference (A - B) is the area covered by A, but not B. In <code class="language-plaintext highlighter-rouge">sf</code>, these operations are implemented by <code class="language-plaintext highlighter-rouge">st_union</code>, <code class="language-plaintext highlighter-rouge">st_intersection</code> and <code class="language-plaintext highlighter-rouge">st_difference</code>.</p>
+
+<p class="notes">If they are applied to two <code class="language-plaintext highlighter-rouge">sf</code> objects (each of them containing multiple features in a column), then the function calculates the union, intersection or difference between all possible pairs of one feature from A and one feature from B. When applied to a single <code class="language-plaintext highlighter-rouge">sf</code> object, the <code class="language-plaintext highlighter-rouge">st_union</code> function merges all features in that object.</p>
+
+</section>
+
+<section>
+
+<p>In the following example, <code class="language-plaintext highlighter-rouge">buffer_union</code> is a single geometric object, a multipolygon that covers all areas included in the individual buffers.</p>
+
+<p class="notes">The variables, or attributes, associated with individual features are lost in the merge.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">buffer_union</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_union</span><span class="p">(</span><span class="n">mrc_buffer</span><span class="p">)</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">buffer_union</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/buffer_union-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>We then use <code class="language-plaintext highlighter-rouge">st_difference</code> to extract the 5km “edges” of the MRC polygons that are outside the combined buffer.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">mrc_edge</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_difference</span><span class="p">(</span><span class="n">mrc_01_11_proj</span><span class="p">,</span><span class="w"> </span><span class="n">buffer_union</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Warning: attribute variables are assumed to be spatially constant throughout all
+geometries
+</code></pre></div></div>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">mrc_edge</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/st_diff-1.png" alt=" " /></p>
+
+<p class="notes">Note that <code class="language-plaintext highlighter-rouge">st_difference</code> copies the data fields from the original datasets (here, only from <code class="language-plaintext highlighter-rouge">mrc_01_11_proj</code>, since <code class="language-plaintext highlighter-rouge">buffer_union</code> has no associated data). The warning (“attribute variables are assumed to be spatially constant”) reminds us that those variables might not match the new geometries. For example, the <em>pop2016</em> variable in <code class="language-plaintext highlighter-rouge">mrc_edge</code> refers to the original MRC, not the portion extracted by <code class="language-plaintext highlighter-rouge">st_difference</code>.</p>
+
+</section>
+
+<section>
+
+<h3 id="review-3">Review</h3>
+
+<ul>
+  <li>The <strong><em>sf</em></strong> package includes <em>measure</em> functions for the area of polygons (<code class="language-plaintext highlighter-rouge">st_area</code>), the length of a line (<code class="language-plaintext highlighter-rouge">st_length</code>) or the distance between pairs of geometric features (<code class="language-plaintext highlighter-rouge">st_distance</code>). Those functions work with either geographic (long, lat) or projected coordinate systems.</li>
+  <li>All other geometric operations in <strong><em>sf</em></strong> are based on planar geometry. They treat longitude and latitude as if they were perpendicular axes (<em>x</em>, <em>y</em>).</li>
+  <li><code class="language-plaintext highlighter-rouge">st_intersects(A, B)</code> is an example of a spatial <em>predicate</em>: for each element in <em>A</em>, the function returns the indices of elements with <em>B</em> that intersect with it.</li>
+</ul>
+
+</section>
+
+<section>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">st_join(A, B)</code> takes an <code class="language-plaintext highlighter-rouge">sf</code> object <em>A</em> and appends the data fields from a second object <em>B</em> for each case where the feature in <em>A</em> intersects with a feature in <em>B</em>. Contrary to <code class="language-plaintext highlighter-rouge">st_intersection</code> below, the geometric features themselves do not change; the result retains the features from <em>A</em>.</li>
+  <li><code class="language-plaintext highlighter-rouge">st_intersection(A, B)</code> produces a dataset containing all regions where features in <em>A</em> and <em>B</em> overlap.</li>
+</ul>
+
+</section>
+
+<section>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">st_difference(A, B)</code> produces a dataset containing the set differences (portion of <em>A</em> not in <em>B</em>) for each pair of features in <em>A</em> and <em>B</em>.</li>
+  <li><code class="language-plaintext highlighter-rouge">st_union(A, B)</code> produces a dataset containing the unions (area covered by either <em>A</em> or <em>B</em>) for each pair of features in <em>A</em> and <em>B</em>. When given a single <code class="language-plaintext highlighter-rouge">sf</code> object as input, <code class="language-plaintext highlighter-rouge">st_union</code> merges all features from that object within a single one.</li>
+  <li><code class="language-plaintext highlighter-rouge">st_buffer</code> produces new geometric features that buffer the input features by a given distance.</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="rast">Raster datasets</h2>
+
+<p>The <em>data</em> folder contains a raster file covering sections 022B and 022C from the <a href="https://ouvert.canada.ca/data/fr/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333">Canadian Digital Elevation Model</a> or CDEM.</p>
+
+<p class="notes">The CDEM is a raster dataset; the area of Canada is covered by a regular grid and the model associates an elevation value (in metres) to each pixel on that grid. This type of data is analogous to a digital image (rectangular array of pixels), to which metadata is added (resolution, spatial extent and coordinate system) so that each pixel can be associated to geographical coordinates.</p>
+
+<p class="notes">The base resolution of the CDEM is 1/4800th of a degree and data are available in sections of 2 degrees of longitude by 1 degree of latitude. The data file we use in this workshop contains two sections (4 degrees of longitude by 1 degree of latitude), but was aggregated to a lower resolution (1/1200th of a degree, or 3 arc-seconds) to reduce processing time.</p>
+
+</section>
+
+<section>
+
+<p>We first load the CDEM file, which is in the GeoTIFF raster format, with the <code class="language-plaintext highlighter-rouge">read_stars</code> function of the <strong><em>stars</em></strong> package (the name is an acronym for <strong>s</strong>patio<strong>t</strong>emporal <strong>ar</strong>ray<strong>s</strong>).</p>
+
+<p class="notes">This function associates the dataset to a <code class="language-plaintext highlighter-rouge">stars</code> object. Typing the object’s name at the command line shows a summary of the data and metadata.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">stars</span><span class="p">)</span><span class="w">
+</span><span class="n">cdem</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_stars</span><span class="p">(</span><span class="s2">"data/cdem_022BC_3s.tif"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">cdem</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>stars object with 2 dimensions and 1 attribute
+attribute(s), summary of first 1e+05 cells:
+ cdem_022BC_3s.tif 
+ Min.   :   2.0    
+ 1st Qu.:   2.0    
+ Median : 129.1    
+ Mean   : 189.8    
+ 3rd Qu.: 328.8    
+ Max.   :1179.4    
+dimension(s):
+  from   to   offset        delta                       refsys point values x/y
+x    1 4801 -70.0001  0.000833333 GEOGCS["NAD83",DATUM["Nor... FALSE   NULL [x]
+y    1 1201  49.0001 -0.000833333 GEOGCS["NAD83",DATUM["Nor... FALSE   NULL [y]
+</code></pre></div></div>
+
+<p class="notes">The CDEM data has one <em>attribute</em> (variable), the elevation, which ranges from 2 to 1179 m for this particular section. The <em>dimensions</em> table includes a row for each array dimension, here <em>x</em> and <em>y</em>. The <em>from</em> and <em>to</em> columns indicate the range of indices in each dimension (4801 cells in <em>x</em> by 1201 cells in <em>y</em>), the <em>offset</em> column contains the coordinates of the top-left corner of the raster (70 degrees West, 49 degrees North), the <em>delta</em> column indicates the size of each raster cell (1/1200 $\approx$ 0.000833 degree), and the <em>refsys</em> column describes the coordinate reference system.</p>
+
+</section>
+
+<section>
+
+<p><em>Notes</em></p>
+
+<ul>
+  <li>
+    <p>The negative <em>delta</em> for <em>y</em> means that latitude decreases from the top (north) to the bottom (south) of the raster.</p>
+  </li>
+  <li>
+    <p>While we limit ourselves to two-dimensional rasters in this workshop, one advantage of the <strong><em>stars</em></strong> package is that it easily incorporates additional dimensions beyond the two spatial dimensions, such as time or spectral band, which are common in remote sensing data.</p>
+  </li>
+</ul>
+
+</section>
+
+<section>
+
+<p>We can also determine the extent and coordinate system of the object with the same methods we used for <code class="language-plaintext highlighter-rouge">sf</code> objects.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">st_bbox</span><span class="p">(</span><span class="n">cdem</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     xmin      ymin      xmax      ymax 
+-70.00010  47.99927 -65.99927  49.00010 
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">st_crs</span><span class="p">(</span><span class="n">cdem</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Coordinate Reference System:
+  User input: GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.2572221010042,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433],AUTHORITY["EPSG","4269"]] 
+  wkt:
+GEOGCS["NAD83",
+    DATUM["North_American_Datum_1983",
+        SPHEROID["GRS 1980",6378137,298.2572221010042,
+            AUTHORITY["EPSG","7019"]],
+        TOWGS84[0,0,0,0,0,0,0],
+        AUTHORITY["EPSG","6269"]],
+    PRIMEM["Greenwich",0],
+    UNIT["degree",0.0174532925199433],
+    AUTHORITY["EPSG","4269"]]
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>We can extract the elevation values as a regular R array with <code class="language-plaintext highlighter-rouge">cdem[[1]]</code>, which pulls the first (in this case the only) variable in the raster file. However, this removes the associated metadata.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">elev</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">cdem</span><span class="p">[[</span><span class="m">1</span><span class="p">]]</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">str</span><span class="p">(</span><span class="n">elev</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code> num [1:4801, 1:1201] 599 607 610 612 612 ...
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<h3 id="plot-a-raster">Plot a raster</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">plot</code> function creates a quick 2D image (or heat map) of the raster data.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">cdem</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/plot_stars-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>We can also display a <code class="language-plaintext highlighter-rouge">stars</code> object in <strong><em>ggplot2</em></strong> with the <code class="language-plaintext highlighter-rouge">geom_stars</code> function.</p>
+
+<p class="notes">Because rasters can contain many more pixels than are visible at once on the screen, it is useful to apply a downsampling factor to speed up plotting. Here, <code class="language-plaintext highlighter-rouge">downsample = 5</code> means that 1 of every 5 pixels is shown.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_stars</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cdem</span><span class="p">,</span><span class="w"> </span><span class="n">downsample</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mrc_01_11</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"white"</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NA</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">scale_fill_viridis_c</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">coord_sf</span><span class="p">(</span><span class="n">xlim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-70</span><span class="p">,</span><span class="w"> </span><span class="m">-66</span><span class="p">),</span><span class="w"> </span><span class="n">ylim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">48</span><span class="p">,</span><span class="w"> </span><span class="m">49</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/geom_stars-1.png" alt=" " /></p>
+
+<p class="notes">The <code class="language-plaintext highlighter-rouge">plot</code> function above automatically downsampled the data according to the screen’s resolution.</p>
+
+</section>
+
+<section>
+
+<h3 id="work-with-large-raster-files">Work with large raster files</h3>
+
+<p>For raster files that are too large to load in memory, you can use the <code class="language-plaintext highlighter-rouge">proxy = TRUE</code> argument in <code class="language-plaintext highlighter-rouge">read_stars</code>. In that case, R loads a <code class="language-plaintext highlighter-rouge">stars_proxy</code> object containing the metadata, but not the pixel values. All raster operations can be applied to <code class="language-plaintext highlighter-rouge">stars_proxy</code> objects as well, but the calculations are not actually performed until the result is plotted (in which case only a fraction of pixels are processed due to downsampling) or the object is saved to disk (with <code class="language-plaintext highlighter-rouge">write_stars</code>).</p>
+
+</section>
+
+<section>
+
+<h3 id="raster-operations">Raster operations</h3>
+
+<p>To crop a rectangular section of the raster, we can use the <code class="language-plaintext highlighter-rouge">filter</code> function from <strong><em>dplyr</em></strong> along one or multiple dimensions. For example, here is the portion of the raster east of 67 degrees West.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">cdem_part</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">filter</span><span class="p">(</span><span class="n">cdem</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">-67</span><span class="p">)</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">cdem_part</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/unnamed-chunk-3-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>To crop a raster’s extent along the boundaries of a <code class="language-plaintext highlighter-rouge">sf</code> object, we use the <code class="language-plaintext highlighter-rouge">st_crop</code> function. The following code shows the elevation of points in the MRC of La Mitis. Note that we converted the polygon to the CRS of the raster prior to cropping.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">mitis</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">filter</span><span class="p">(</span><span class="n">mrc_01_11</span><span class="p">,</span><span class="w"> </span><span class="n">mrc_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"La Mitis"</span><span class="p">)</span><span class="w">
+</span><span class="n">mitis</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_transform</span><span class="p">(</span><span class="n">mitis</span><span class="p">,</span><span class="w"> </span><span class="n">st_crs</span><span class="p">(</span><span class="n">cdem</span><span class="p">))</span><span class="w">
+</span><span class="n">cdem_mitis</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_crop</span><span class="p">(</span><span class="n">cdem</span><span class="p">,</span><span class="w"> </span><span class="n">mitis</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_union assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_intersects assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">cdem_mitis</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/st_crop-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>Since <code class="language-plaintext highlighter-rouge">stars</code> objects are fundamentally arrays of values, we can apply mathematical operations to each pixel just like we would for a regular array in R.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="c1"># Convert elevation values to km</span><span class="w">
+</span><span class="n">cdem_km</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">cdem</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="m">1000</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">cdem_km</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/raster_math-1.png" alt=" " /></p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="c1"># Display points above 500 m in elevation</span><span class="w">
+</span><span class="n">cdem_500</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">cdem</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">500</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">cdem_500</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/rgeo_workshop/raster_math2-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<h3 id="retour4">Exercise 4</h3>
+
+<p>a) Show on a map where the elevation is between 5 and 100 m in the MRC of La Mitis.</p>
+
+<p>b) What is the highest elevation in that MRC?</p>
+
+<p><a href="#sol4">Solution</a></p>
+
+</section>
+
+<section>
+
+<h3 id="extract-values-from-raster-at-points">Extract values from raster at points</h3>
+
+<p>A common use of raster data is to extract values at points of interest. For example, we might want elevation values for each of the forest inventory plots in <code class="language-plaintext highlighter-rouge">plots_01_11</code>.</p>
+
+</section>
+
+<section>
+
+<p>Since the <strong><em>stars</em></strong> package does not have a fast option for point extraction, we will use the <strong><em>raster</em></strong> package and its <code class="language-plaintext highlighter-rouge">extract</code> function.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">raster</span><span class="p">)</span><span class="w">
+</span><span class="n">cdem_r</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">as</span><span class="p">(</span><span class="n">cdem</span><span class="p">,</span><span class="w"> </span><span class="s2">"Raster"</span><span class="p">)</span><span class="w"> </span><span class="c1"># convert from stars to raster format</span><span class="w">
+</span><span class="n">plots_elev</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">extract</span><span class="p">(</span><span class="n">cdem_r</span><span class="p">,</span><span class="w"> </span><span class="n">plots_01_11</span><span class="p">)</span><span class="w">
+
+</span><span class="n">plots_01_11</span><span class="o">$</span><span class="n">elev</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">plots_elev</span><span class="w"> </span><span class="c1"># save in a new column of the sf object</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">head</span><span class="p">(</span><span class="n">plots_01_11</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Simple feature collection with 6 features and 9 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: -67.02499 ymin: 48.36367 xmax: -64.41216 ymax: 48.52901
+CRS:           4269
+     plot_id  surv_date cover_type height_cls        mrc_name reg_id
+17 119600101 2016-06-16 Coniferous    17-22 m     Bonaventure     11
+18 119600102 2016-06-16 Coniferous    17-22 m     Bonaventure     11
+19 119600201 2015-06-03 Coniferous    12-17 m    La Matapedia     01
+20 119600202 2015-06-03 Coniferous    12-17 m    La Matapedia     01
+21 119600301 2016-06-15 Coniferous    12-17 m Le Rocher-Perce     11
+22 119600302 2016-06-14 Coniferous    12-17 m Le Rocher-Perce     11
+                          reg_name pop2016                   geometry     elev
+17 Gaspesie - Iles-de-la-Madeleine   17664  POINT (-65.43818 48.3653)       NA
+18 Gaspesie - Iles-de-la-Madeleine   17664 POINT (-65.43293 48.36367)       NA
+19               Bas-Saint-Laurent   17935 POINT (-67.02499 48.36973) 453.1875
+20               Bas-Saint-Laurent   17935 POINT (-67.02246 48.37316) 435.1875
+21 Gaspesie - Iles-de-la-Madeleine   17311 POINT (-64.41546 48.52901)       NA
+22 Gaspesie - Iles-de-la-Madeleine   17311  POINT (-64.41216 48.5262)       NA
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<h3 id="review-4">Review</h3>
+
+<ul>
+  <li>A raster dataset associates a value to each pixel in a regular grid. The <strong><em>stars</em></strong> package allows us to process this type of data in R.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">read_stars</code> function loads a raster file in R. For large files, specify <code class="language-plaintext highlighter-rouge">proxy = TRUE</code> to avoid loading the full raster in memory.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">stars</code> object can be plotted by itself with <code class="language-plaintext highlighter-rouge">plot</code>, or added to a <code class="language-plaintext highlighter-rouge">ggplot</code> with <code class="language-plaintext highlighter-rouge">geom_stars</code>.</li>
+</ul>
+
+</section>
+
+<section>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">filter</code> crops a <code class="language-plaintext highlighter-rouge">stars</code> object along the specified dimensions, whereas <code class="language-plaintext highlighter-rouge">st_crop</code> crops it within the boundaries of an <code class="language-plaintext highlighter-rouge">sf</code> object.</li>
+  <li>Arithmetic (<code class="language-plaintext highlighter-rouge">+</code>, <code class="language-plaintext highlighter-rouge">-</code>, etc.) and comparison operators (<code class="language-plaintext highlighter-rouge">&lt;</code>, <code class="language-plaintext highlighter-rouge">==</code>, etc.) are applied to each pixel of the <code class="language-plaintext highlighter-rouge">stars</code> object.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">extract</code> function from the <strong><em>raster</em></strong> package extracts raster values at specific points specified by an <code class="language-plaintext highlighter-rouge">sf</code> object.</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="mapview">Interactive maps with mapview</h2>
+
+<p>The <strong><em>mapview</em></strong> package provides visualizations of <code class="language-plaintext highlighter-rouge">sf</code> and <code class="language-plaintext highlighter-rouge">raster</code> layers on an interactive map (similar to Google Maps) with different basemap options (e.g. OpenStreetMap, OpenTopoMap, ESRI World Imagery). We simply call the <code class="language-plaintext highlighter-rouge">mapview</code> function with the name of the spatial dataset. Multiple layers can be overlaid with the <code class="language-plaintext highlighter-rouge">+</code> operator.</p>
+
+</section>
+
+<section>
+
+<p>There are a few optional arguments to control the plotting of each type of object. In the example below, we use the <code class="language-plaintext highlighter-rouge">zcol</code> argument to select the variable by which to color the points in <code class="language-plaintext highlighter-rouge">plots_01_11</code>.</p>
+
+<div class="language-r no-eval text-document highlighter-rouge" title="worksheet-1.R"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">mapview</span><span class="p">)</span><span class="w">
+
+</span><span class="n">mapview</span><span class="p">(</span><span class="n">cdem</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+    </span><span class="n">mapview</span><span class="p">(</span><span class="n">plots_01_11</span><span class="p">,</span><span class="w"> </span><span class="n">zcol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cover_type"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+</section>
+
+<section>
+
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/mapview_example.png" alt="" width="75%" style="border: none; box-shadow: none;" /><br />
+<em>Screenshot of mapview example</em></p>
+
+</section>
+
+<section>
+
+<h2 id="ref">Additional references</h2>
+
+<ul>
+  <li>
+    <p><a href="https://keen-swartz-3146c4.netlify.com/">Spatial Data Science</a>, a free online textbook by Edzer Pebesma and Roger Bivand that covers the <em>sf</em> and <em>stars</em> packages in more detail, in addition to subsequent chapters on statistical modelling of spatial data.</p>
+  </li>
+  <li>
+    <p><a href="https://geocompr.robinlovelace.net/">Geocomputation with R</a> (Lovelace, Nowosad and Muenchow) is another comprehensive free textbook for manipulating and analyzing spatial data.</p>
+  </li>
+</ul>
+
+</section>
+
+<section>
+
+<ul>
+  <li>
+    <p>The <a href="https://www.r-spatial.org">R-spatial blog</a> presents news and tutorials on spatial packages in R. In particular, see this series (<a href="https://www.r-spatial.org/r/2018/10/25/ggplot2-sf.html">1</a>, <a href="https://www.r-spatial.org/r/2018/10/25/ggplot2-sf-2.html">2</a>, <a href="https://www.r-spatial.org/r/2018/10/25/ggplot2-sf-3.html">3</a>) of posts by Mel Moreno and Mathieu Basille on mapping with <em>ggplot2</em>.</p>
+  </li>
+  <li>
+    <p>The <a href="https://rspatial.org/">RSpatial site</a> (not to be confused with the previous one) includes tutorials for the <em>raster</em> and <em>terra</em> packages to work with raster data.</p>
+  </li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="data">Data sources</h2>
+
+<p>This workshop uses public data made available by Québec and Canada government agencies. The script <code class="language-plaintext highlighter-rouge">data_prep.R</code> shows the detailed steps to produce the workshop data files from the original sources.</p>
+
+<ul>
+  <li>County regional municipality (CRM) <a href="https://mern.gouv.qc.ca/territoire/portrait/portrait-donnees-mille.jsp">boundaries</a> were downloaded from the Québec Department of Energy and Natural Resources (MERN) and merged with <a href="https://www.stat.gouv.qc.ca/statistiques/population-demographie/structure/mrc-total.xlsx">population data</a> from the Institut de la statistique du Québec. Column names were translated to English and diacritic marks (accents) were removed from all place names.</li>
+</ul>
+
+</section>
+
+<section>
+
+<ul>
+  <li>
+    <p>Data on <a href="https://www.donneesquebec.ca/recherche/fr/dataset/placettes-echantillons-permanentes-1970-a-aujourd-hui">forest inventory plots</a> and <a href="https://www.donneesquebec.ca/recherche/fr/dataset/donnees-sur-les-perturbations-naturelles-insecte-tordeuse-des-bourgeons-de-lepinette">spruce budworm defoliation maps</a> from the Québec Department of Forests, Wildlife and Parks (MFFP) were downloaded from the Québec Open Data Portal. Some data fields were recoded and translated to English.</p>
+  </li>
+  <li>
+    <p><a href="https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333">Canadian Digital Elevation Model</a> rasters from Natural Resources Canada were downloaded from the Canada Open Data Portal. Two 2x1 degree sections were merged to use in this workshop.</p>
+  </li>
+</ul>
+
+</section>
+
+<p class="ToS"><a href="#/slides/rgeo_workshop">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/solutions"></a></p>
+
+<section><h2 id="sol">Solutions</h2>
+
+<h3 id="sol1">Exercise 1</h3>
+
+<p>Select the MRCs in the Bas-St-Laurent (<em>reg_id</em>: 01) and Gaspesie (<em>reg_id</em>: 11) regions, then display their 2016 population on a map.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">mrc_01_11</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mrc</span><span class="p">[</span><span class="n">mrc</span><span class="o">$</span><span class="n">reg_id</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"01"</span><span class="p">,</span><span class="w"> </span><span class="s2">"11"</span><span class="p">),</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">mrc_01_11</span><span class="p">[</span><span class="s2">"pop2016"</span><span class="p">],</span><span class="w"> </span><span class="n">axes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/solutions/sol1-1.png" alt=" " /></p>
+
+<p><a href="#retour1">Return to text</a></p>
+
+</section>
+
+<section>
+
+<h3 id="sol2">Exercise 2</h3>
+
+<p>Create a map of the MRCs with different fill colors for each region.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mrc_proj</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reg_name</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span><span class="o">+</span><span class="w">     </span><span class="n">geom_sf</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/solutions/sol2-1.png" alt=" " /></p>
+
+<p><a href="#retour2">Return to text</a></p>
+
+</section>
+
+<section>
+
+<h3 id="sol3">Exercise 3</h3>
+
+<p>a) How many of the forest inventory plots in these regions are affected at each defoliation level?</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">defo</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_read</span><span class="p">(</span><span class="s2">"data/tbe2016_gaspe.shp"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Reading layer `tbe2016_gaspe' from data source `/nfs/public-data/training/tbe2016_gaspe.shp' using driver `ESRI Shapefile'
+Simple feature collection with 3928 features and 2 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: -69.88925 ymin: 47.38829 xmax: -64.66188 ymax: 49.25522
+CRS:           4269
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">plots_defo</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_join</span><span class="p">(</span><span class="n">plots_01_11</span><span class="p">,</span><span class="w"> </span><span class="n">defo</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_intersects assumes that they are planar
+although coordinates are longitude/latitude, st_intersects assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">plots_defo</span><span class="o">$</span><span class="n">level</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+ 1  2  3 
+93 93 90 
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>b) Plot the defoliated areas located in the MRC of Kamouraska by severity level, also displaying the MRC border.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">mrc_kam</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">filter</span><span class="p">(</span><span class="n">mrc_01_11</span><span class="p">,</span><span class="w"> </span><span class="n">mrc_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"Kamouraska"</span><span class="p">)</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">defo_kam</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_join</span><span class="p">(</span><span class="n">defo</span><span class="p">,</span><span class="w"> </span><span class="n">mrc_kam</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_intersects assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">ggplot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span><span class="o">+</span><span class="w">     </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mrc_kam</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span><span class="o">+</span><span class="w">     </span><span class="n">geom_sf</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">defo_kam</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NA</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">level</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/solutions/sol3b-1.png" alt=" " /></p>
+
+<p><a href="#retour3">Return to text</a></p>
+
+</section>
+
+<section>
+
+<h3 id="sol4">Exercise 4</h3>
+
+<p>a) Show on a map where the elevation is between 5 and 100 m in the MRC of La Mitis.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">mitis</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">filter</span><span class="p">(</span><span class="n">mrc_01_11</span><span class="p">,</span><span class="w"> </span><span class="n">mrc_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"La Mitis"</span><span class="p">)</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">mitis</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_transform</span><span class="p">(</span><span class="n">mitis</span><span class="p">,</span><span class="w"> </span><span class="n">st_crs</span><span class="p">(</span><span class="n">cdem</span><span class="p">))</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> 
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cdem_mitis</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_crop</span><span class="p">(</span><span class="n">cdem</span><span class="p">,</span><span class="w"> </span><span class="n">mitis</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_union assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>although coordinates are longitude/latitude, st_intersects assumes that they are planar
+</code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">cdem_mitis</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">cdem_mitis</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">100</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/atelier_rgeo@v0.0/docs/assets/images/solutions/sol4a-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>b) What is the highest elevation in that MRC?</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">cdem_mitis_vals</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">cdem_mitis</span><span class="p">[[</span><span class="m">1</span><span class="p">]]</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">cdem_mitis_vals</span><span class="p">,</span><span class="w"> </span><span class="n">na.rm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] 794.4375
+</code></pre></div></div>
+
+<p><a href="#retour4">Return to text</a></p>
+</section>
+
+<p class="ToS"><a href="#/slides/solutions">Top of Section</a></p>
+
+
+
+        <hr>
+
+<p>If you need to catch-up before a section of code will work, just squish it's
+🍅 to copy code above it into your clipboard. Then paste into your interpreter's
+console, run, and you'll be ready to start in on that section. Code copied by
+both 🍅 and 📋 will also appear below, where you can edit first, and then copy,
+paste, and run again.</p>
+
+<div class="output">
+  <pre id="ketchup" contenteditable="true"><code># Nothing here yet!</code></pre>
+</div>
+
+<script>
+$(document).ready(function(){
+  
+  // Add code help icons to code blocks
+  $('.input, .text-document').append('<ul class="code-help">');
+  $('.code-help')
+    .append('<li class="clipboard">📋</li>');
+  $('.text-document:not(.no-eval) .code-help')
+    .append('<li class="ketchup">🍅</li>');
+
+  // Bind copy actions to mouse clicks on icons
+  var $ketchup = $('#ketchup');
+  var rng = document.createRange();
+  var sel = window.getSelection();
+  $('.ketchup').click(function(){
+    var $prev = $(this)
+      .parents('.text-document')
+      .prevAll('.text-document:has(.ketchup)');
+    $ketchup.find('code').text($prev.find('pre').text());
+    rng.selectNodeContents($ketchup[0]);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+  });
+  $('.text-document .clipboard').click(function(){
+    var pre = $(this).parents('.text-document').find('pre').text();
+    $ketchup.find('code').text(pre);
+    rng.selectNodeContents($ketchup[0]);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+  });
+  $('.input .clipboard').click(function(){
+    var pre = $(this).parents('.input').find('pre').text();
+    pre = pre.replace(/(^|\n)[>+] /g, '$1');
+    $ketchup.find('code').text(pre);
+    rng.selectNodeContents($ketchup[0]);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+  });
+});
+</script>
+      </div>
+    </div>
+    <script>
+$(document).ready(function(){
+  // Add links to R and Python package repositories
+  $('a.rlib').map(function(){
+    this.href = 'https://cran.r-project.org/package=' + this.innerText;
+  });
+  $('a.pylib').map(function(){
+    this.href = 'https://pypi.python.org/pypi/' + this.innerText;
+  });
+});
+</script>
+
+  </body>
+</html>
