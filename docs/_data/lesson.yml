@@ -12,7 +12,7 @@ handouts:
   - data/tbe2016_gaspe.prj
   - data/tbe2016_gaspe.shp
   - data/tbe2016_gaspe.shx
-tag: 
+tag: v0.0
 lesson: 1
 instructor: Quentin Read
 lifecycle: beta # status for lifecycle badge
